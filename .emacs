@@ -107,6 +107,19 @@
      (list (line-beginning-position)
            (line-beginning-position 2)))))
 
+;; Formatting
+(defun reformat-code ()
+  (interactive)
+  (defvar astyle-x)
+  (defvar astyle-y)
+  (setq astyle-x (line-number-at-pos)
+        astyle-y (line-number-at-pos (point-max)))
+  (shell-command-on-region (point-min) (point-max) 
+                           "astyle" t t)
+  (with-no-warnings (goto-line astyle-x)))
+(global-set-key (kbd "s-a") `reformat-code)
+(setq-default c-basic-offset 4)
+
 ;; Themes and other aesthetic tweaks
 (require 'dash)
 (require 's)
@@ -129,3 +142,14 @@
 (set-default 'truncate-lines t)
 (setq-default cursor-type 'bar)
 (delete-selection-mode 1)
+    
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+    
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+    
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  
+(setq scroll-step 1) ;; keyboard scroll one line at a time
+
+(provide '.emacs)
+;;; .emacs ends here
