@@ -158,14 +158,15 @@
 (set-default 'truncate-lines t)
 (setq-default cursor-type 'bar)
 (delete-selection-mode 1)
-    
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
-    
-(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-    
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-  
-(setq scroll-step 1) ;; keyboard scroll one line at a time
+
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-progressive-speed nil)
+(setq mouse-wheel-follow-mouse 't)
+(use-package sublimity)
+(use-package sublimity-scroll)
+;(use-package sublimity-map)
+(use-package sublimity-attractive)
+(sublimity-mode 1)
 
 (provide '.emacs)
 ;;; .emacs ends here
