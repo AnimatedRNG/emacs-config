@@ -120,6 +120,22 @@
 (global-set-key (kbd "s-a") `reformat-code)
 (setq-default c-basic-offset 4)
 
+(defun electric-pair ()
+      "If at end of line, insert character pair without surrounding spaces.
+    Otherwise, just insert the typed character."
+      (interactive)
+      (if (eolp) (let (parens-require-spaces) (insert-pair)) (self-insert-command 1)))
+      (add-hook 'c++-mode-hook
+              (lambda ()
+                (define-key c++-mode-map "(" 'electric-pair)
+                (define-key c++-mode-map "[" 'electric-pair)
+                (define-key c++-mode-map "{" 'electric-pair)))
+
+(setq column-number-mode t)
+(use-package column-marker
+  :init
+  (add-hook 'foo-mode-hook (lambda () (interactive) (column-marker-1 80))))
+
 ;; Themes and other aesthetic tweaks
 (require 'dash)
 (require 's)
