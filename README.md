@@ -12,7 +12,7 @@ This configuration has the following settings/features/tweaks:
 * No backup files
 * No start screen
 * No tool bar
-* Yes-or-no is y-or-p
+* Yes-or-no is y-or-n
 * Smooth scrolling (with and without mouse)
 
 #### Packages
