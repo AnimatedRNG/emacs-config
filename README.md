@@ -29,7 +29,7 @@ This configuration has the following settings/features/tweaks:
 #### Keybindings
 
 * "M-s" is now `save`
-* "C-x u" is now `undo`
+* "C-u" is now `undo`
 * "M-n" moves down five lines
 * "M-p" moves up five lines
 * Many common "C-x \*" keybindings are now "Super-\*"
