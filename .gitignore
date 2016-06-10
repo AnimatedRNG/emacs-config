@@ -4,6 +4,8 @@
 
 !.gitignore
 !README.md
+!img
+!img/*
 !.emacs.d
 !.emacs.d/elpa
 !.emacs.d/elpa/*
