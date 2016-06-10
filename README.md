@@ -1,4 +1,6 @@
-## My Emacs configuration
+# My Emacs configuration
+
+![screenshot](https://raw.githubusercontent.com/AnimatedRNG/emacs-config/4b20aae9c534cd1f78a36c6576f6e2d4f2090ba4/img/screenshot_1.png)
 
 I'm pretty new to Emacs; so I'm sure there are more elegant ways
 to handle the config file.
@@ -30,7 +32,7 @@ This configuration has the following settings/features/tweaks:
 * "C-x u" is now `undo`
 * "M-n" moves down five lines
 * "M-p" moves up five lines
-* Many common "C-x *" keybindings are now "Super-*"
+* Many common "C-x \*" keybindings are now "Super-\*"
 * "M-w" and "C-w" without any arguments will copy/kill the current line
 * Replacing text works now
 
