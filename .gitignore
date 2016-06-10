@@ -3,6 +3,7 @@
 *
 
 !.gitignore
+!README.md
 !.emacs.d
 !.emacs.d/elpa
 !.emacs.d/elpa/*
