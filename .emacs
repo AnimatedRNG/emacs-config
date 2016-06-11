@@ -25,15 +25,6 @@
 (package-initialize)
 (eval-when-compile (require 'use-package))
 
-(use-package cpputils-cmake
-  :init
-  (add-hook 'c-mode-common-hook
-          (lambda ()
-            (if (derived-mode-p 'c-mode 'c++-mode)
-                (cppcm-reload-all)
-              )))
-  )
-
 (use-package flycheck
   :init
   (add-hook 'prog-mode-hook #'flycheck-mode)
@@ -44,25 +35,42 @@
   	flycheck-standard-error-navigation t)
   )
 
-(setq cppcm-get-executable-full-path-callback
-      (lambda (path type tgt-name)
-        ;; path is the supposed-to-be target's full path
-        ;; type is either add_executabe or add_library
-        ;; tgt-name is the target to built. The target's file extension is stripped
-        (message "cppcm-get-executable-full-path-callback called => %s %s %s" path type tgt-name)
-        (let ((dir (file-name-directory path))
-              (file (file-name-nondirectory path)))
-          (cond
-           ((string= type "add_executable")
-            (setq path (concat dir "bin/" file)))
-           ;; for add_library
-           (t (setq path (concat dir "bin/" file)))
-           ))
-        ;; return the new path
-        (message "cppcm-get-executable-full-path-callback called => path=%s" path)
-        path))
+;; Autocomplete
+;(use-package rtags)
+;(use-package cmake-ide
+;  :init
+;  (setq cmake-ide-flags-c++ '("-I/usr/include/c++/6.1.1"
+;			    "-I/usr/include/c++/6.1.1/x86_64-pc-linux-gnu"
+;			    "-I/usr/include/c++/6.1.1/backward"
+;			    "-I/usr/local/include"
+;			    "-I/usr/include"
+;			    "-I/usr/share/include")))
+;(use-package company-mode
+;  :init
+;  (add-hook 'after-init-hook 'global-company-mode))
+;(eval-after-load 'company
+;  '(add-to-list 'company-backends 'company-irony))
+
+;(add-hook 'c++-mode-hook 'irony-mode)
+;(add-hook 'c-mode-hook 'irony-mode)
+;(add-hook 'objc-mode-hook 'irony-mode)
+
+;; replace the `completion-at-point' and `complete-symbol' bindings in
+;; irony-mode's buffers by irony-mode's function
+;(defun my-irony-mode-hook ()
+;  (define-key irony-mode-map [remap completion-at-point]
+;    'irony-completion-at-point-async)
+;  (define-key irony-mode-map [remap complete-symbol]
+;    'irony-completion-at-point-async))
+;(add-hook 'irony-mode-hook 'my-irony-mode-hook)
+;(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+
+;(cmake-ide-setup)
 
 ;; Keybindings
+(use-package elmacro
+  :init
+  (elmacro-mode))
 (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") `repeat)
 
@@ -76,6 +84,10 @@
 		(lambda () (interactive) (next-line 5)))
 (global-set-key (kbd "M-p")
 		(lambda () (interactive) (previous-line 5)))
+
+(defun return-to-mark ()
+        (interactive)
+	(set-mark-command '(4)))
 
 (global-set-key (kbd "s-c") `save-buffers-kill-emacs)
 (global-set-key (kbd "s-f") `find-file)
@@ -91,6 +103,9 @@
 (global-set-key (kbd "s-e") `call-last-kbd-macro)
 (global-set-key (kbd "s-k") `kill-buffer)
 (global-set-key (kbd "s-h") `mark-whole-buffer)
+(global-set-key (kbd "s-u") `universal-argument)
+(global-set-key (kbd "s-q") `return-to-mark)
+(global-set-key (kbd "s-x") `exchange-point-and-mark)
 
 (defadvice kill-ring-save (before slick-copy activate compile)
   "When called interactively with no active region, COPY a single line instead."
@@ -118,6 +133,8 @@
                            "astyle" t t)
   (with-no-warnings (goto-line astyle-x)))
 (global-set-key (kbd "s-a") `reformat-code)
+;(use-package google-set-c-style)
+;(add-hook 'c-mode-common-hook 'google-set-c-style)
 (setq-default c-basic-offset 4)
 
 (defun electric-pair ()
