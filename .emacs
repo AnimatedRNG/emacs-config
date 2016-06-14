@@ -181,9 +181,8 @@
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-follow-mouse 't)
 (use-package sublimity)
-(use-package sublimity-scroll)
-;(use-package sublimity-map)
-(use-package sublimity-attractive)
+(require 'sublimity-scroll)
+(require 'sublimity-attractive)
 (sublimity-mode 1)
 
 (provide '.emacs)
