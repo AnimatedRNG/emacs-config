@@ -40,7 +40,7 @@ This configuration has the following settings/features/tweaks:
 
 * "Super-a" formats code with astyle; tries to retain cursor position
 * Indents are 4 spaces
-* Electric pairing for C++
+* Redo is linear now
 
 #### Aesthetics
 

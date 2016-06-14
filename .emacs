@@ -74,11 +74,18 @@
 (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") `repeat)
 
+(use-package god-mode
+  :init
+  (global-set-key (kbd "<escape>") 'god-mode-all))
+
 (global-unset-key (kbd "M-s"))
 (global-set-key (kbd "M-s") `save-buffer)
 
+(use-package redo+)
 (global-unset-key (kbd "C-x u"))
 (global-set-key (kbd "C-u") `undo)
+(global-set-key (kbd "s-u") `undo)
+(global-set-key (kbd "s-r") `redo)
 
 (global-set-key (kbd "M-n")
 		(lambda () (interactive) (next-line 5)))
@@ -100,12 +107,15 @@
 (global-set-key [s-tab] (lambda () (interactive) (other-window 1)))
 (global-set-key (kbd "s-(") `start-kbd-macro)
 (global-set-key (kbd "s-)") `end-kbd-macro)
+(global-set-key (kbd "s-{") `shrink-window-horizontally)
+(global-set-key (kbd "s-}") `enlarge-window-horizontally)
 (global-set-key (kbd "s-e") `call-last-kbd-macro)
 (global-set-key (kbd "s-k") `kill-buffer)
 (global-set-key (kbd "s-h") `mark-whole-buffer)
 (global-set-key (kbd "s-u") `universal-argument)
 (global-set-key (kbd "s-q") `return-to-mark)
 (global-set-key (kbd "s-x") `exchange-point-and-mark)
+(global-set-key (kbd "s-g") `goto-line)
 
 (defadvice kill-ring-save (before slick-copy activate compile)
   "When called interactively with no active region, COPY a single line instead."
@@ -119,7 +129,7 @@
   (interactive
    (if mark-active (list (region-beginning) (region-end))
      (message "Killed line")
-     (list (line-beginning-position)
+     (list (line-position)
            (line-beginning-position 2)))))
 
 ;; Formatting
@@ -136,17 +146,6 @@
 ;(use-package google-set-c-style)
 ;(add-hook 'c-mode-common-hook 'google-set-c-style)
 (setq-default c-basic-offset 4)
-
-(defun electric-pair ()
-      "If at end of line, insert character pair without surrounding spaces.
-    Otherwise, just insert the typed character."
-      (interactive)
-      (if (eolp) (let (parens-require-spaces) (insert-pair)) (self-insert-command 1)))
-      (add-hook 'c++-mode-hook
-              (lambda ()
-                (define-key c++-mode-map "(" 'electric-pair)
-                (define-key c++-mode-map "[" 'electric-pair)
-                (define-key c++-mode-map "{" 'electric-pair)))
 
 (setq column-number-mode t)
 (use-package column-marker
@@ -174,6 +173,7 @@
 
 (set-default 'truncate-lines t)
 (setq-default cursor-type 'bar)
+(blink-cursor-mode 0)
 (delete-selection-mode 1)
 
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
