@@ -168,7 +168,9 @@
       (add-to-list 'custom-theme-load-path item)))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(load-theme 'hc-zenburn t)
+(use-package hc-zenburn-theme
+  :init
+  (load-theme 'hc-zenburn t))
 
 (set-face-attribute 'default nil :height 150)
 
