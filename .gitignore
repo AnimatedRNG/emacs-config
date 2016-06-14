@@ -6,11 +6,3 @@
 !README.md
 !img
 !img/*
-!.emacs.d
-!.emacs.d/elpa
-!.emacs.d/elpa/*
-!.emacs.d/elpa/*/*
-!.emacs.d/elpa/archives/*
-!.emacs.d/elpa/archives/*/*
-!.emacs.d/themes
-!.emacs.d/themes/*

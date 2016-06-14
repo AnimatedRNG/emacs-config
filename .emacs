@@ -24,9 +24,8 @@
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
 
-(unless package-archives
-  (package-refresh-contents))
 (unless (package-installed-p 'use-package)
+  (package-refresh-contents)
   (package-install 'use-package))
 
 (setq use-package-always-ensure t)
@@ -173,10 +172,13 @@
    (lambda (item)
       (add-to-list 'custom-theme-load-path item)))
 
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+(use-package monokai-theme
+  :init
+  (load-theme 'monokai t))
 (use-package hc-zenburn-theme
   :init
-  (load-theme 'hc-zenburn t))
+  (load-theme 'hc-zenburn t)
+  (enable-theme `hc-zenburn))
 
 (set-face-attribute 'default nil :height 150)
 
