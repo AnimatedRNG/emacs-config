@@ -152,6 +152,7 @@
 ;(use-package google-set-c-style)
 ;(add-hook 'c-mode-common-hook 'google-set-c-style)
 (setq-default c-basic-offset 4)
+(setq-default indent-tabs-mode nil)
 
 (setq column-number-mode t)
 (use-package column-marker
