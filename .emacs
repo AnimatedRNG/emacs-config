@@ -23,6 +23,7 @@
                          ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
+(setq use-package-always-ensure t)
 (eval-when-compile (require 'use-package))
 
 (use-package flycheck
