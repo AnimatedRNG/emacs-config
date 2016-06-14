@@ -59,4 +59,4 @@ This configuration has the following settings/features/tweaks:
 **Do not clone this respository to your home directory!**
 
 Clone the respository to a different folder and symlink the `.emacs` file
-and the `.emacs.d` directory to your home directory.
+to your home directory.
