@@ -278,6 +278,7 @@ at the beggining of the new line if inside of a comment."
 (require 'sublimity-scroll)
 (require 'sublimity-attractive)
 (sublimity-mode 1)
+(toggle-scroll-bar -1)
 
 (provide '.emacs)
 ;;; .emacs ends here
