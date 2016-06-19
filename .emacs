@@ -256,6 +256,9 @@ at the beggining of the new line if inside of a comment."
 (use-package monokai-theme
   :init
   (load-theme 'monokai t))
+(use-package cyberpunk-theme
+  :init
+  (load-theme `cyberpunk t))
 (use-package hc-zenburn-theme
   :init
   (load-theme 'hc-zenburn t)
