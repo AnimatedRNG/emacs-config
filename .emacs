@@ -80,6 +80,14 @@
 
 ;(cmake-ide-setup)
 
+(use-package glsl-mode
+  :init
+  (autoload 'glsl-mode "glsl-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.glsl\\'" . glsl-mode))
+  (add-to-list 'auto-mode-alist '("\\.vert\\'" . glsl-mode))
+  (add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode))
+  (add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode)))
+
 ;; Keybindings
 (use-package elmacro
   :init
