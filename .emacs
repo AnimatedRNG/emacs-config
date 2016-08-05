@@ -49,16 +49,7 @@
   )
 
 ;; Autocomplete
-;(use-package rtags)
-;(use-package cmake-ide
-;  :init
-;  (setq cmake-ide-flags-c++ '("-I/usr/include/c++/6.1.1"
-;			    "-I/usr/include/c++/6.1.1/x86_64-pc-linux-gnu"
-;			    "-I/usr/include/c++/6.1.1/backward"
-;			    "-I/usr/local/include"
-;			    "-I/usr/include"
-;			    "-I/usr/share/include")))
-;(use-package company-mode
+;(use-package company
 ;  :init
 ;  (add-hook 'after-init-hook 'global-company-mode))
 ;(eval-after-load 'company
@@ -77,6 +68,16 @@
 ;    'irony-completion-at-point-async))
 ;(add-hook 'irony-mode-hook 'my-irony-mode-hook)
 ;(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+
+;(use-package rtags)
+;(use-package cmake-ide
+;  :init
+;  (setq cmake-ide-flags-c++ '("-I/usr/include/c++/6.1.1"
+;			    "-I/usr/include/c++/6.1.1/x86_64-pc-linux-gnu"
+;			    "-I/usr/include/c++/6.1.1/backward"
+;			    "-I/usr/local/include"
+;			    "-I/usr/include"
+;			    "-I/usr/share/include")))
 
 ;(cmake-ide-setup)
 
@@ -173,6 +174,11 @@
 (global-set-key (kbd "s-a") `reformat-code)
 (setq-default c-basic-offset 4)
 (setq-default indent-tabs-mode nil)
+
+(use-package py-autopep8
+  :init
+  (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
+)
 
 (use-package smartparens
   :init
