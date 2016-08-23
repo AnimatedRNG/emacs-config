@@ -14,12 +14,6 @@
  '(inhibit-startup-buffer-menu t) 
  '(inhibit-startup-screen t) 
  '(tool-bar-mode nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
 
 ;; Package configuration
 (require 'package)
@@ -87,6 +81,10 @@
   (add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode)))
 
+(use-package 
+  magit 
+  :init (add-hook 'after-save-hook 'magit-after-save-refresh-status))
+
 ;; Keybindings
 (use-package 
   elmacro 
@@ -148,8 +146,9 @@
 (global-set-key (kbd "s-h") `mark-whole-buffer)
 (global-set-key (kbd "s-u") `universal-argument)
 (global-set-key (kbd "s-q") `return-to-mark)
-(global-set-key (kbd "s-x") `exchange-point-and-mark)
 (global-set-key (kbd "s-g") `goto-line)
+
+(global-set-key (kbd "s-x s-m") `magit-status)
 
 (add-hook 'c-mode-common-hook 
           (lambda () 
@@ -175,7 +174,6 @@
            (line-beginning-position 2)))))
 
 ;; Formatting
-
 (use-package 
   elisp-format)
 (defun reformat-code () 
@@ -266,9 +264,9 @@ at the beggining of the new line if inside of a comment."
         ;; else insert only new-line
         (newline-and-indent)))))
 (add-hook 'prog-mode-hook 
-          (lambda ()
-            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'glsl-mode)
-            (local-set-key (kbd "<RET>") 'advanced-return))))
+          (lambda () 
+            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'glsl-mode) 
+              (local-set-key (kbd "<RET>") 'advanced-return))))
 
 
 ;; Themes and other aesthetic tweaks
@@ -276,11 +274,11 @@ at the beggining of the new line if inside of a comment."
 (use-package 
   jekyll-modes)
 (use-package 
-  markdown-mode
+  markdown-mode 
   :bind (:map markdown-mode-map
               ("M-n" . next-several-lines) 
-              ("M-p" . previous-several-lines)
-              ("s-n" . markdown-next-link)
+              ("M-p" . previous-several-lines) 
+              ("s-n" . markdown-next-link) 
               ("s-p" . markdown-previous-link)))
 
 (require 'dash)
