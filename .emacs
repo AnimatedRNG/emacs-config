@@ -22,7 +22,7 @@
  )
 
 ;; Package configuration
-(require 'package) 
+(require 'package)
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/") 
                          ("marmalade" . "https://marmalade-repo.org/packages/") 
                          ("melpa" . "https://melpa.org/packages/")))
@@ -108,16 +108,18 @@
 (global-set-key (kbd "s-u") `undo)
 (global-set-key (kbd "s-r") `redo)
 
+(defun next-several-lines () 
+  (interactive) 
+  (next-line 5))
+
+(defun previous-several-lines () 
+  (interactive) 
+  (previous-line 5))
+
 (global-unset-key (kbd "M-n"))
 (global-unset-key (kbd "M-p"))
-(global-set-key (kbd "M-n") 
-                (lambda () 
-                  (interactive) 
-                  (next-line 5)))
-(global-set-key (kbd "M-p") 
-                (lambda () 
-                  (interactive) 
-                  (previous-line 5)))
+(global-set-key (kbd "M-n") `next-several-lines)
+(global-set-key (kbd "M-p") `previous-several-lines)
 (global-set-key (kbd "s-n") `next-error)
 (global-set-key (kbd "s-p") `previous-error)
 
@@ -189,7 +191,7 @@
       (with-no-warnings 
         (goto-line astyle-x)))) 
   (when (derived-mode-p 'emacs-lisp-mode) 
-    (elisp-format-buffer))
+    (elisp-format-buffer)) 
   (when (derived-mode-p 'python-mode) 
     (py-autopep8-buffer)))
 (global-set-key (kbd "s-a") `reformat-code)
@@ -264,8 +266,9 @@ at the beggining of the new line if inside of a comment."
         ;; else insert only new-line
         (newline-and-indent)))))
 (add-hook 'prog-mode-hook 
-          (lambda () 
-            (local-set-key (kbd "<RET>") 'advanced-return)))
+          (lambda ()
+            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'glsl-mode)
+            (local-set-key (kbd "<RET>") 'advanced-return))))
 
 
 ;; Themes and other aesthetic tweaks
@@ -273,7 +276,12 @@ at the beggining of the new line if inside of a comment."
 (use-package 
   jekyll-modes)
 (use-package 
-  markdown-mode)
+  markdown-mode
+  :bind (:map markdown-mode-map
+              ("M-n" . next-several-lines) 
+              ("M-p" . previous-several-lines)
+              ("s-n" . markdown-next-link)
+              ("s-p" . markdown-previous-link)))
 
 (require 'dash)
 (require 's)
