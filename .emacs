@@ -80,6 +80,11 @@
 ;			    "-I/usr/share/include")))
 
 ;(cmake-ide-setup)
+(use-package jedi
+  :init
+  (add-hook 'python-mode-hook 'jedi:setup)
+  (setq jedi:complete-on-dot t)
+)
 
 (use-package glsl-mode
   :init
