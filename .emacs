@@ -11,8 +11,11 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(inhibit-startup-buffer-menu t) 
- '(inhibit-startup-screen t) 
+ '(inhibit-startup-buffer-menu t)
+ '(inhibit-startup-screen t)
+ '(package-selected-packages
+   (quote
+    (use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -36,12 +39,37 @@
   :config (setq flycheck-check-syntax-automatically '(save new-line) flycheck-idle-change-delay 5.0
                 flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t))
 
+(defun eclim-run-test () 
+  (interactive) 
+  (if (not (string= major-mode "java-mode")) 
+      (message "Sorry cannot run current buffer."))
+  (eclim-project-build)
+  (compile (concat eclim-executable " -command java_junit -p " eclim--project-name " -t "
+                   (eclim-package-and-class))))
+
+(use-package 
+  eclim
+  :init
+  (require 'eclimd) 
+  :bind (("s-x s-e" . eclim-run-test)
+         ("s-x s-c" . eclim-project-build)
+         ("s-x s-r" . eclim-run-class)
+         ("s-x s-o" . eclim-java-import-organize)
+         ("s-x s-d" . eclim-java-find-declaration)
+         ("s-x s-q" . eclim-java-show-documentation-for-current-element)
+         ("s-x s-f" . eclim-problems-correct)
+         ))
+
 ;; Autocomplete
-                                        ;(use-package company
-                                        ;  :init
-                                        ;  (add-hook 'after-init-hook 'global-company-mode))
-                                        ;(eval-after-load 'company
-                                        ;  '(add-to-list 'company-backends 'company-irony))
+(use-package 
+  company 
+  :init (add-hook 'after-init-hook 'global-company-mode))
+(use-package 
+  company-emacs-eclim 
+  :init (add-hook 'after-init-hook 'global-company-mode) 
+  (company-emacs-eclim-setup))
+(eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
+(eval-after-load 'company '(add-to-list 'company-backends 'company-eclim))
 
                                         ;(add-hook 'c++-mode-hook 'irony-mode)
                                         ;(add-hook 'c-mode-hook 'irony-mode)
@@ -68,6 +96,9 @@
                                         ;			    "-I/usr/share/include")))
 
                                         ;(cmake-ide-setup)
+
+
+
 (use-package 
   jedi 
   :init (add-hook 'python-mode-hook 'jedi:setup) 
@@ -82,8 +113,14 @@
   (add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode)))
 
 (use-package 
+  flymake-json)
+
+(use-package 
   magit 
   :init (add-hook 'after-save-hook 'magit-after-save-refresh-status))
+
+(use-package
+  epg)
 
 ;; Keybindings
 (use-package 
@@ -106,6 +143,10 @@
 (global-set-key (kbd "s-u") `undo)
 (global-set-key (kbd "s-r") `redo)
 
+(defun top-join-line ()
+  (interactive)
+  (delete-indentation 1))
+
 (defun next-several-lines () 
   (interactive) 
   (next-line 5))
@@ -116,6 +157,9 @@
 
 (global-unset-key (kbd "M-n"))
 (global-unset-key (kbd "M-p"))
+(global-unset-key (kbd "M-j"))
+(global-unset-key (kbd "C-M-j"))
+(global-set-key (kbd "M-j") 'top-join-line)
 (global-set-key (kbd "M-n") `next-several-lines)
 (global-set-key (kbd "M-p") `previous-several-lines)
 (global-set-key (kbd "s-n") `next-error)
@@ -325,3 +369,9 @@ at the beggining of the new line if inside of a comment."
 
 (provide '.emacs)
 ;;; .emacs ends here
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
