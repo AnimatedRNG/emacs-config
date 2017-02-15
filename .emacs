@@ -13,9 +13,10 @@
  ;; If there is more than one, they won't work right.
  '(inhibit-startup-buffer-menu t)
  '(inhibit-startup-screen t)
+ '(magit-commit-arguments nil)
  '(package-selected-packages
    (quote
-    (use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
+    (whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -42,23 +43,21 @@
 (defun eclim-run-test () 
   (interactive) 
   (if (not (string= major-mode "java-mode")) 
-      (message "Sorry cannot run current buffer."))
-  (eclim-project-build)
+      (message "Sorry cannot run current buffer.")) 
+  (eclim-project-build) 
   (compile (concat eclim-executable " -command java_junit -p " eclim--project-name " -t "
                    (eclim-package-and-class))))
 
 (use-package 
-  eclim
-  :init
-  (require 'eclimd) 
-  :bind (("s-x s-e" . eclim-run-test)
-         ("s-x s-c" . eclim-project-build)
-         ("s-x s-r" . eclim-run-class)
-         ("s-x s-o" . eclim-java-import-organize)
-         ("s-x s-d" . eclim-java-find-declaration)
-         ("s-x s-q" . eclim-java-show-documentation-for-current-element)
-         ("s-x s-f" . eclim-problems-correct)
-         ))
+  eclim 
+  :init (require 'eclimd) 
+  :bind (("s-x s-e" . eclim-run-test) 
+         ("s-x s-c" . eclim-project-build) 
+         ("s-x s-r" . eclim-run-class) 
+         ("s-x s-o" . eclim-java-import-organize) 
+         ("s-x s-d" . eclim-java-find-declaration) 
+         ("s-x s-q" . eclim-java-show-documentation-for-current-element) 
+         ("s-x s-f" . eclim-problems-correct)))
 
 ;; Autocomplete
 (use-package 
@@ -68,35 +67,29 @@
   company-emacs-eclim 
   :init (add-hook 'after-init-hook 'global-company-mode) 
   (company-emacs-eclim-setup))
+
 (eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
 (eval-after-load 'company '(add-to-list 'company-backends 'company-eclim))
-
-                                        ;(add-hook 'c++-mode-hook 'irony-mode)
-                                        ;(add-hook 'c-mode-hook 'irony-mode)
-                                        ;(add-hook 'objc-mode-hook 'irony-mode)
+(add-hook 'c++-mode-hook 'irony-mode) 
+(add-hook 'c-mode-hook 'irony-mode) 
+(add-hook 'objc-mode-hook 'irony-mode)
 
 ;; replace the `completion-at-point' and `complete-symbol' bindings in
 ;; irony-mode's buffers by irony-mode's function
-                                        ;(defun my-irony-mode-hook ()
-                                        ;  (define-key irony-mode-map [remap completion-at-point]
-                                        ;    'irony-completion-at-point-async)
-                                        ;  (define-key irony-mode-map [remap complete-symbol]
-                                        ;    'irony-completion-at-point-async))
-                                        ;(add-hook 'irony-mode-hook 'my-irony-mode-hook)
-                                        ;(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-
-                                        ;(use-package rtags)
-                                        ;(use-package cmake-ide
-                                        ;  :init
-                                        ;  (setq cmake-ide-flags-c++ '("-I/usr/include/c++/6.1.1"
-                                        ;			    "-I/usr/include/c++/6.1.1/x86_64-pc-linux-gnu"
-                                        ;			    "-I/usr/include/c++/6.1.1/backward"
-                                        ;			    "-I/usr/local/include"
-                                        ;			    "-I/usr/include"
-                                        ;			    "-I/usr/share/include")))
-
-                                        ;(cmake-ide-setup)
-
+(defun my-irony-mode-hook () 
+  (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async) 
+  (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async)) 
+(add-hook 'irony-mode-hook 'my-irony-mode-hook) 
+(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+(use-package 
+  rtags) 
+(use-package 
+  cmake-ide 
+  :init (setq cmake-ide-flags-c++ '("-I/usr/include/c++/6.1.1"
+                                    "-I/usr/include/c++/6.1.1/x86_64-pc-linux-gnu"
+                                    "-I/usr/include/c++/6.1.1/backward" "-I/usr/local/include"
+                                    "-I/usr/include" "-I/usr/share/include")))
+(cmake-ide-setup)
 
 
 (use-package 
@@ -119,7 +112,7 @@
   magit 
   :init (add-hook 'after-save-hook 'magit-after-save-refresh-status))
 
-(use-package
+(use-package 
   epg)
 
 ;; Keybindings
@@ -143,8 +136,8 @@
 (global-set-key (kbd "s-u") `undo)
 (global-set-key (kbd "s-r") `redo)
 
-(defun top-join-line ()
-  (interactive)
+(defun top-join-line () 
+  (interactive) 
   (delete-indentation 1))
 
 (defun next-several-lines () 
@@ -194,28 +187,23 @@
 
 (global-set-key (kbd "s-x s-m") `magit-status)
 
-(add-hook 'c-mode-common-hook 
-          (lambda () 
-            (define-key c-mode-base-map (kbd "s-m") 'compile)))
+(add-hook 'c-mode-common-hook (lambda () 
+                                (define-key c-mode-base-map (kbd "s-m") 'compile)))
 
 (defadvice kill-ring-save (before slick-copy activate compile) 
   "When called interactively with no active region, COPY a single line instead." 
-  (interactive 
-   (if mark-active 
-       (list (region-beginning) 
-             (region-end)) 
-     (message "Copied line") 
-     (list (line-beginning-position) 
-           (line-beginning-position 2)))))
+  (interactive (if mark-active (list (region-beginning) 
+                                     (region-end)) 
+                 (message "Copied line") 
+                 (list (line-beginning-position) 
+                       (line-beginning-position 2)))))
 (defadvice kill-region (before slick-cut activate compile) 
   "When called interactively with no active region, KILL a single line instead." 
-  (interactive 
-   (if mark-active 
-       (list (region-beginning) 
-             (region-end)) 
-     (message "Killed line") 
-     (list (line-beginning-position) 
-           (line-beginning-position 2)))))
+  (interactive (if mark-active (list (region-beginning) 
+                                     (region-end)) 
+                 (message "Killed line") 
+                 (list (line-beginning-position) 
+                       (line-beginning-position 2)))))
 
 ;; Formatting
 (use-package 
@@ -230,8 +218,7 @@
       (setq astyle-x (line-number-at-pos) astyle-y (line-number-at-pos (point-max))) 
       (shell-command-on-region (point-min) 
                                (point-max) "astyle" t t) 
-      (with-no-warnings 
-        (goto-line astyle-x)))) 
+      (with-no-warnings (goto-line astyle-x)))) 
   (when (derived-mode-p 'emacs-lisp-mode) 
     (elisp-format-buffer)) 
   (when (derived-mode-p 'python-mode) 
@@ -239,6 +226,13 @@
 (global-set-key (kbd "s-a") `reformat-code)
 (setq-default c-basic-offset 4)
 (setq-default indent-tabs-mode nil)
+
+(use-package 
+  whitespace-cleanup-mode 
+  :init (add-hook 'python-mode-hook 'whitespace-cleanup-mode) 
+  (add-hook 'c-mode-hook 'whitespace-cleanup-mode) 
+  (add-hook 'c++-mode-hook 'whitespace-cleanup-mode) 
+  (add-hook 'java-mode-hook 'whitespace-cleanup-mode))
 
 (use-package 
   py-autopep8 
@@ -259,10 +253,9 @@
 (setq column-number-mode t)
 (use-package 
   column-marker 
-  :init (add-hook 'foo-mode-hook 
-                  (lambda () 
-                    (interactive) 
-                    (column-marker-1 80))))
+  :init (add-hook 'foo-mode-hook (lambda () 
+                                   (interactive) 
+                                   (column-marker-1 80))))
 
 ;; Advanced return for programming.
 ;; Shuai Li
@@ -274,43 +267,32 @@ provide a corrent comment symbol at each newline plus a space when you press
 at the beggining of the new line if inside of a comment." 
   (interactive "*") 
   (let* ((last (point)) 
-         (line-beginning 
-          (progn 
-            (beginning-of-line) 
-            (point))) 
-         (is-inside-java-doc 
-          (progn 
-            (goto-char last) 
-            (if (search-backward "*/" nil t)
-                ;; there are some comment endings - search forward
-                (search-forward "/*" last t)
-              ;; it's the only comment - search backward
-              (goto-char last) 
-              (search-backward "/*" nil t)))) 
-         (is-inside-oneline-comment 
-          (progn 
-            (goto-char last) 
-            (search-backward comment-start line-beginning t))))
+         (line-beginning (progn (beginning-of-line) 
+                                (point))) 
+         (is-inside-java-doc (progn (goto-char last) 
+                                    (if (search-backward "*/" nil t)
+                                        ;; there are some comment endings - search forward
+                                        (search-forward "/*" last t)
+                                      ;; it's the only comment - search backward
+                                      (goto-char last) 
+                                      (search-backward "/*" nil t)))) 
+         (is-inside-oneline-comment (progn (goto-char last) 
+                                           (search-backward comment-start line-beginning t))))
 
     ;; go to last char position
     (goto-char last)
 
     ;; the point is inside one line comment, insert the comment-start.
-    (if is-inside-oneline-comment 
-        (progn 
-          (newline-and-indent) 
-          (insert comment-start))
+    (if is-inside-oneline-comment (progn (newline-and-indent) 
+                                         (insert comment-start))
       ;; else we check if it is java-doc style comment.
-      (if is-inside-java-doc 
-          (progn 
-            (newline-and-indent) 
-            (insert "* "))
+      (if is-inside-java-doc (progn (newline-and-indent) 
+                                    (insert "* "))
         ;; else insert only new-line
         (newline-and-indent)))))
-(add-hook 'prog-mode-hook 
-          (lambda () 
-            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'glsl-mode) 
-              (local-set-key (kbd "<RET>") 'advanced-return))))
+(add-hook 'prog-mode-hook (lambda () 
+                            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'glsl-mode) 
+                              (local-set-key (kbd "<RET>") 'advanced-return))))
 
 
 ;; Themes and other aesthetic tweaks
@@ -328,13 +310,11 @@ at the beggining of the new line if inside of a comment."
 (require 'dash)
 (require 's)
 
-(-each (-map 
-        (lambda (item) 
-          (format "~/.emacs.d/elpa/%s" item)) 
-        (-filter 
-         (lambda (item) 
-           (s-contains? "theme" item)) 
-         (directory-files "~/.emacs.d/elpa/"))) 
+(-each (-map (lambda (item) 
+               (format "~/.emacs.d/elpa/%s" item)) 
+             (-filter (lambda (item) 
+                        (s-contains? "theme" item)) 
+                      (directory-files "~/.emacs.d/elpa/"))) 
   (lambda (item) 
     (add-to-list 'custom-theme-load-path item)))
 
@@ -362,7 +342,6 @@ at the beggining of the new line if inside of a comment."
 (setq mouse-wheel-follow-mouse 't)
 (use-package 
   sublimity)
-(require 'sublimity-scroll)
 (require 'sublimity-attractive)
 (sublimity-mode 1)
 (toggle-scroll-bar -1)
