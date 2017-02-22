@@ -11,12 +11,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(inhibit-startup-buffer-menu t)
- '(inhibit-startup-screen t)
- '(magit-commit-arguments nil)
- '(package-selected-packages
-   (quote
-    (whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
+ '(inhibit-startup-buffer-menu t) 
+ '(inhibit-startup-screen t) 
+ '(magit-commit-arguments nil) 
+ '(package-selected-packages (quote (whitespace-cleanup-mode use-package sublimity smartparens redo+
+                                                             py-autopep8 monokai-theme markdown-mode
+                                                             magit jekyll-modes jedi
+                                                             hc-zenburn-theme god-mode glsl-mode
+                                                             flymake-json flycheck elmacro
+                                                             elisp-format cyberpunk-theme
+                                                             company-emacs-eclim column-marker))) 
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -70,19 +74,21 @@
 
 (eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
 (eval-after-load 'company '(add-to-list 'company-backends 'company-eclim))
-(add-hook 'c++-mode-hook 'irony-mode) 
-(add-hook 'c-mode-hook 'irony-mode) 
+(add-hook 'c++-mode-hook 'irony-mode)
+(add-hook 'c-mode-hook 'irony-mode)
 (add-hook 'objc-mode-hook 'irony-mode)
 
 ;; replace the `completion-at-point' and `complete-symbol' bindings in
 ;; irony-mode's buffers by irony-mode's function
 (defun my-irony-mode-hook () 
   (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async) 
-  (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async)) 
-(add-hook 'irony-mode-hook 'my-irony-mode-hook) 
+  (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
+(add-hook 'irony-mode-hook 'my-irony-mode-hook)
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+(global-unset-key (kbd "C-/"))
 (use-package 
-  rtags) 
+  rtags 
+  :init (rtags-enable-standard-keybindings c-mode-base-map "C-/"))
 (use-package 
   cmake-ide 
   :init (setq cmake-ide-flags-c++ '("-I/usr/include/c++/6.1.1"
@@ -345,6 +351,7 @@ at the beggining of the new line if inside of a comment."
 (require 'sublimity-attractive)
 (sublimity-mode 1)
 (toggle-scroll-bar -1)
+(menu-bar-mode -1)
 
 (provide '.emacs)
 ;;; .emacs ends here
