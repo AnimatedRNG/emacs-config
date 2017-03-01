@@ -190,8 +190,8 @@
 (global-set-key (kbd "s-u") `universal-argument)
 (global-set-key (kbd "s-q") `return-to-mark)
 (global-set-key (kbd "s-g") `goto-line)
-(global-set-key (kbd "s-;") `scroll-down-line)
-(global-set-key (kbd "s-'") `scroll-up-line)
+(global-set-key (kbd "s-[") `scroll-down-line)
+(global-set-key (kbd "s-]") `scroll-up-line)
 
 (global-set-key (kbd "s-x s-m") `magit-status)
 
