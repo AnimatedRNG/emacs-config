@@ -11,16 +11,15 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(inhibit-startup-buffer-menu t) 
- '(inhibit-startup-screen t) 
- '(magit-commit-arguments nil) 
- '(package-selected-packages (quote (whitespace-cleanup-mode use-package sublimity smartparens redo+
-                                                             py-autopep8 monokai-theme markdown-mode
-                                                             magit jekyll-modes jedi
-                                                             hc-zenburn-theme god-mode glsl-mode
-                                                             flymake-json flycheck elmacro
-                                                             elisp-format cyberpunk-theme
-                                                             company-emacs-eclim column-marker))) 
+ '(custom-safe-themes
+   (quote
+    ("71ecffba18621354a1be303687f33b84788e13f40141580fa81e7840752d31bf" "8b313e1793da427e90c034dbe74f3ad9092ac291846c0f855908c42a6bda1ff4" default)))
+ '(inhibit-startup-buffer-menu t)
+ '(inhibit-startup-screen t)
+ '(magit-commit-arguments nil)
+ '(package-selected-packages
+   (quote
+    (whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -305,8 +304,69 @@ at the beggining of the new line if inside of a comment."
 
 ;; Themes and other aesthetic tweaks
 
+(defvar serif-preserve-default-list nil 
+  "A list holding the faces that preserve the default family and
+  height when TOGGLE-SERIF is used.")
+(setq serif-preserve-default-list '( ;; LaTeX markup
+                                    font-latex-math-face font-latex-sedate-face
+                                                         font-latex-warning-face
+                                                         ;; org markup
+                                                         org-latex-and-related org-meta-line
+                                                         org-verbatim org-block-begin-line
+                                                         ;; syntax highlighting using font-lock
+                                                         font-lock-builtin-face
+                                                         font-lock-comment-delimiter-face
+                                                         font-lock-comment-face
+                                                         font-lock-constant-face font-lock-doc-face
+                                                         font-lock-function-name-face
+                                                         font-lock-keyword-face
+                                                         font-lock-negation-char-face
+                                                         font-lock-preprocessor-face
+                                                         font-lock-regexp-grouping-backslash
+                                                         font-lock-regexp-grouping-construct
+                                                         font-lock-string-face font-lock-type-face
+                                                         font-lock-variable-name-face
+                                                         font-lock-warning-face))
+
+(defun toggle-serif () 
+  "Change the default face of the current buffer to use a serif family." 
+  (interactive) 
+  (when (display-graphic-p) ;; this is only for graphical emacs
+    ;; the serif font familiy and height, save the default attributes
+    (let ((serif-fam "Crimson") 
+          (serif-height 150) 
+          (default-fam (face-attribute 'default 
+                                       :family)) 
+          (default-height (face-attribute 'default 
+                                          :height))) 
+      (if (not (bound-and-true-p default-cookie)) 
+          (progn (make-local-variable 'default-cookie) 
+                 (make-local-variable 'preserve-default-cookies-list) 
+                 (setq preserve-default-cookies-list nil)
+                 ;; remap default face to serif
+                 (setq default-cookie (face-remap-add-relative 'default 
+                                                               :family serif-fam 
+                                                               :height serif-height))
+                 ;; keep previously defined monospace fonts the same
+                 (dolist (face serif-preserve-default-list) 
+                   (add-to-list 'preserve-default-cookies-list (face-remap-add-relative face 
+                                                                                        :family
+                                                                                        default-fam 
+                                                                                        :height
+                                                                                        default-height))) 
+                 (message "Turned on serif writing font."))
+        ;; undo changes
+        (progn (face-remap-remove-relative default-cookie) 
+               (dolist (cookie preserve-default-cookies-list) 
+                 (face-remap-remove-relative cookie)) 
+               (setq default-cookie nil) 
+               (setq preserve-default-cookies-list nil) 
+               (message "Restored default fonts."))))))
+
 (use-package 
   jekyll-modes)
+(use-package
+  pandoc-mode)
 (use-package 
   markdown-mode 
   :bind (:map markdown-mode-map
@@ -314,6 +374,20 @@ at the beggining of the new line if inside of a comment."
               ("M-p" . previous-several-lines) 
               ("s-n" . markdown-next-link) 
               ("s-p" . markdown-previous-link)))
+(use-package
+  flyspell-popup)
+
+(define-key flyspell-mode-map (kbd "C-;") #'flyspell-popup-correct)
+
+(defun wp_mode () 
+  (toggle-serif) 
+  (visual-line-mode)
+  (pandoc-mode)
+  (flyspell-mode)
+  (enable-theme 'iodine))
+
+(add-hook 'markdown-mode-hook 'wp_mode)
+(add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)
 
 (require 'dash)
 (require 's)
@@ -333,12 +407,15 @@ at the beggining of the new line if inside of a comment."
   cyberpunk-theme 
   :init (load-theme `cyberpunk t))
 (use-package 
+  iodine-theme 
+  :init (load-theme 'iodine t))
+(use-package 
   hc-zenburn-theme 
-  :init (load-theme 'hc-zenburn t) 
-  (enable-theme `hc-zenburn))
+  :init (load-theme 'hc-zenburn t))
+(enable-theme `hc-zenburn)
 
 (set-face-attribute 'default nil 
-                    :height 150)
+                    :height 120)
 
 (set-default 'truncate-lines t)
 (setq-default cursor-type 'bar)
