@@ -96,6 +96,19 @@
                                     "-I/usr/include" "-I/usr/share/include")))
 (cmake-ide-setup)
 
+(use-package
+  rust-mode
+  :init (add-hook 'rust-mode-hook 'cargo-minor-mode))
+
+(use-package
+  racer
+  :init (add-hook 'rust-mode-hook #'racer-mode)
+  (add-hook 'racer-mode-hook #'eldoc-mode)
+  (add-hook 'racer-mode-hook #'company-mode))
+
+(use-package
+  flycheck-rust
+  :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 (use-package 
   jedi 
@@ -109,6 +122,11 @@
   (add-to-list 'auto-mode-alist '("\\.vert\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode)))
+
+(use-package inform7-mode)
+
+(use-package
+  opencl-mode)
 
 (use-package 
   flymake-json)
@@ -362,6 +380,8 @@ at the beggining of the new line if inside of a comment."
                (setq default-cookie nil) 
                (setq preserve-default-cookies-list nil) 
                (message "Restored default fonts."))))))
+(set-frame-parameter (selected-frame) 'alpha '(95 . 90))
+(add-to-list 'default-frame-alist '(alpha . (95 . 90)))
 
 (use-package 
   jekyll-modes)
@@ -383,8 +403,7 @@ at the beggining of the new line if inside of a comment."
   (toggle-serif) 
   (visual-line-mode)
   (pandoc-mode)
-  (flyspell-mode)
-  (enable-theme 'iodine))
+  (flyspell-mode))
 
 (add-hook 'markdown-mode-hook 'wp_mode)
 (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)
@@ -406,9 +425,6 @@ at the beggining of the new line if inside of a comment."
 (use-package 
   cyberpunk-theme 
   :init (load-theme `cyberpunk t))
-(use-package 
-  iodine-theme 
-  :init (load-theme 'iodine t))
 (use-package 
   hc-zenburn-theme 
   :init (load-theme 'hc-zenburn t))
