@@ -19,7 +19,9 @@
  '(magit-commit-arguments nil)
  '(package-selected-packages
    (quote
-    (whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
+    (web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
+ '(js2-basic-offset 4)  
+ '(js2-bounce-indent-p t) 
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -42,6 +44,12 @@
   :init (add-hook 'prog-mode-hook #'flycheck-mode) 
   :config (setq flycheck-check-syntax-automatically '(save new-line) flycheck-idle-change-delay 5.0
                 flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t))
+
+(global-set-key (kbd "s-x") nil)
+(setq mac-command-modifier 'meta)       ; make cmd key do Meta
+(setq mac-option-modifier 'super)       ; make opt key do Super
+(setq mac-control-modifier 'control)    ; make Control key do Control
+(setq ns-function-modifier 'hyper)      ; make Fn key do Hyper
 
 (defun eclim-run-test () 
   (interactive) 
@@ -96,18 +104,18 @@
                                     "-I/usr/include" "-I/usr/share/include")))
 (cmake-ide-setup)
 
-(use-package
-  rust-mode
+(use-package 
+  rust-mode 
   :init (add-hook 'rust-mode-hook 'cargo-minor-mode))
 
-(use-package
-  racer
-  :init (add-hook 'rust-mode-hook #'racer-mode)
-  (add-hook 'racer-mode-hook #'eldoc-mode)
+(use-package 
+  racer 
+  :init (add-hook 'rust-mode-hook #'racer-mode) 
+  (add-hook 'racer-mode-hook #'eldoc-mode) 
   (add-hook 'racer-mode-hook #'company-mode))
 
-(use-package
-  flycheck-rust
+(use-package 
+  flycheck-rust 
   :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 (use-package 
@@ -123,13 +131,32 @@
   (add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode)))
 
-(use-package inform7-mode)
+(use-package 
+  inform7-mode)
 
-(use-package
+(use-package 
   opencl-mode)
 
 (use-package 
   flymake-json)
+
+(use-package 
+  js2-mode 
+  :interpreter ("node" . js-mode) 
+  :init (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
+
+(use-package
+  skewer-mode
+  :init (add-hook 'js2-mode-hook 'skewer-mode))
+
+(use-package
+  ac-js2
+  :init (add-hook 'js2-mode-hook 'ac-js2-mode)
+  (setq ac-js2-evaluate-calls t))
+
+(use-package
+  web-beautify
+  :init (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js))
 
 (use-package 
   magit 
@@ -385,7 +412,7 @@ at the beggining of the new line if inside of a comment."
 
 (use-package 
   jekyll-modes)
-(use-package
+(use-package 
   pandoc-mode)
 (use-package 
   markdown-mode 
@@ -394,15 +421,15 @@ at the beggining of the new line if inside of a comment."
               ("M-p" . previous-several-lines) 
               ("s-n" . markdown-next-link) 
               ("s-p" . markdown-previous-link)))
-(use-package
+(use-package 
   flyspell-popup)
 
 (define-key flyspell-mode-map (kbd "C-;") #'flyspell-popup-correct)
 
 (defun wp_mode () 
   (toggle-serif) 
-  (visual-line-mode)
-  (pandoc-mode)
+  (visual-line-mode) 
+  (pandoc-mode) 
   (flyspell-mode))
 
 (add-hook 'markdown-mode-hook 'wp_mode)
@@ -431,14 +458,14 @@ at the beggining of the new line if inside of a comment."
 (enable-theme `hc-zenburn)
 
 (set-face-attribute 'default nil 
-                    :height 120)
+                    :height 180)
 
 (set-default 'truncate-lines t)
 (setq-default cursor-type 'bar)
 (blink-cursor-mode 0)
 (delete-selection-mode 1)
 
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-scroll-amount '(3 ((shift) . 3)))
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-follow-mouse 't)
 (use-package 
