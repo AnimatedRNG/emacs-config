@@ -16,12 +16,12 @@
     ("71ecffba18621354a1be303687f33b84788e13f40141580fa81e7840752d31bf" "8b313e1793da427e90c034dbe74f3ad9092ac291846c0f855908c42a6bda1ff4" default)))
  '(inhibit-startup-buffer-menu t)
  '(inhibit-startup-screen t)
+ '(js2-basic-offset 4)
+ '(js2-bounce-indent-p t)
  '(magit-commit-arguments nil)
  '(package-selected-packages
    (quote
     (web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
- '(js2-basic-offset 4)  
- '(js2-bounce-indent-p t) 
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -98,9 +98,9 @@
   :init (rtags-enable-standard-keybindings c-mode-base-map "C-/"))
 (use-package 
   cmake-ide 
-  :init (setq cmake-ide-flags-c++ '("-I/usr/include/c++/6.1.1"
-                                    "-I/usr/include/c++/6.1.1/x86_64-pc-linux-gnu"
-                                    "-I/usr/include/c++/6.1.1/backward" "-I/usr/local/include"
+  :init (setq cmake-ide-flags-c++ '("-I/usr/include/c++/7.1.1"
+                                    "-I/usr/include/c++/7.1.1/x86_64-pc-linux-gnu"
+                                    "-I/usr/include/c++/7.1.1/backward" "-I/usr/local/include"
                                     "-I/usr/include" "-I/usr/share/include")))
 (cmake-ide-setup)
 
@@ -123,13 +123,36 @@
   :init (add-hook 'python-mode-hook 'jedi:setup) 
   (setq jedi:complete-on-dot t))
 
+(defun recompile-quietly () 
+  "Re-compile without changing the window configuration." 
+  (interactive) 
+  (save-window-excursion (recompile)))
+
 (use-package 
   glsl-mode 
   :init (autoload 'glsl-mode "glsl-mode" nil t) 
   (add-to-list 'auto-mode-alist '("\\.glsl\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.vert\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode)) 
-  (add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode)))
+  (add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode)) 
+  (add-hook 'glsl-mode-hook (lambda () 
+                              (irony-mode -1)))
+  (add-hook 'glsl-mode-hook 'auto-complete-mode))
+
+(flycheck-define-checker glsl-lang-validator "A GLSL checker using glslangValidator.
+  See URL https://www.khronos.org/opengles/sdk/tools/Reference-Compiler/" 
+                         :command ("glslangValidator -S frag " source) 
+                         :error-patterns ((error 
+                                           line-start
+                                           "ERROR: "
+                                           column
+                                           ":"
+                                           line
+                                           ": "
+                                           (message)
+                                           line-end)) 
+                         :modes glsl-mode)
+(add-to-list 'flycheck-checkers 'glsl-lang-validator)
 
 (use-package 
   inform7-mode)
@@ -140,22 +163,37 @@
 (use-package 
   flymake-json)
 
+(defun my/use-eslint-from-node-modules ()
+  (let* ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "node_modules"))
+         (eslint (and root
+                      (expand-file-name "node_modules/eslint/bin/eslint.js"
+                                        root))))
+    (when (and eslint (file-executable-p eslint))
+      (setq-local flycheck-javascript-eslint-executable eslint))))
+
 (use-package 
   js2-mode 
   :interpreter ("node" . js-mode) 
-  :init (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
+  :init
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  (setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers '(javascript-jshint)))
+  (flycheck-add-mode 'javascript-eslint 'js2-mode)
+  (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules))
 
-(use-package
-  skewer-mode
+(use-package 
+  skewer-mode 
   :init (add-hook 'js2-mode-hook 'skewer-mode))
 
-(use-package
-  ac-js2
-  :init (add-hook 'js2-mode-hook 'ac-js2-mode)
+(use-package 
+  ac-js2 
+  :init (add-hook 'js2-mode-hook 'ac-js2-mode) 
   (setq ac-js2-evaluate-calls t))
 
-(use-package
-  web-beautify
+(use-package 
+  web-beautify 
   :init (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js))
 
 (use-package 
@@ -240,7 +278,7 @@
 (global-set-key (kbd "s-x s-m") `magit-status)
 
 (add-hook 'c-mode-common-hook (lambda () 
-                                (define-key c-mode-base-map (kbd "s-m") 'compile)))
+                                (define-key c-mode-base-map (kbd "s-m") 'recompile-quietly)))
 
 (defadvice kill-ring-save (before slick-copy activate compile) 
   "When called interactively with no active region, COPY a single line instead." 
@@ -458,7 +496,24 @@ at the beggining of the new line if inside of a comment."
 (enable-theme `hc-zenburn)
 
 (set-face-attribute 'default nil 
-                    :height 180)
+                    :height 120)
+
+                                        ; font sizes
+(global-set-key (kbd "s-=") 
+                (lambda () 
+                  (interactive) 
+                  (let ((old-face-attribute (face-attribute 'default 
+                                                            :height))) 
+                    (set-face-attribute 'default nil 
+                                        :height (+ old-face-attribute 10)))))
+
+(global-set-key (kbd "s--") 
+                (lambda () 
+                  (interactive) 
+                  (let ((old-face-attribute (face-attribute 'default 
+                                                            :height))) 
+                    (set-face-attribute 'default nil 
+                                        :height (- old-face-attribute 10)))))
 
 (set-default 'truncate-lines t)
 (setq-default cursor-type 'bar)
@@ -483,3 +538,4 @@ at the beggining of the new line if inside of a comment."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'downcase-region 'disabled nil)
