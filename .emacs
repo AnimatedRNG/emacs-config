@@ -161,6 +161,9 @@
   opencl-mode)
 
 (use-package 
+  cuda-mode)
+
+(use-package 
   flymake-json)
 
 (defun my/use-eslint-from-node-modules ()
