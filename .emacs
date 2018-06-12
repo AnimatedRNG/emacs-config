@@ -13,7 +13,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("71ecffba18621354a1be303687f33b84788e13f40141580fa81e7840752d31bf" "8b313e1793da427e90c034dbe74f3ad9092ac291846c0f855908c42a6bda1ff4" default)))
+    ("c1390663960169cd92f58aad44ba3253227d8f715c026438303c09b9fb66cdfb" "71ecffba18621354a1be303687f33b84788e13f40141580fa81e7840752d31bf" "8b313e1793da427e90c034dbe74f3ad9092ac291846c0f855908c42a6bda1ff4" default)))
  '(inhibit-startup-buffer-menu t)
  '(inhibit-startup-screen t)
  '(js2-basic-offset 4)
@@ -21,7 +21,7 @@
  '(magit-commit-arguments nil)
  '(package-selected-packages
    (quote
-    (web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
+    (twilight-bright-theme go-mode web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -30,7 +30,7 @@
                          ("marmalade" . "https://marmalade-repo.org/packages/") 
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
-
+(setq shell-file-name "/bin/bash")
 (unless (package-installed-p 'use-package) 
   (package-refresh-contents) 
   (package-install 'use-package))
@@ -105,8 +105,27 @@
 (cmake-ide-setup)
 
 (use-package 
+  go-mode 
+  :init (add-hook 'before-save-hook #'gofmt-before-save) 
+  (add-hook 'go-mode-hook (lambda () 
+                            (set (make-local-variable 'company-backends) 
+                                 '(company-go)))))
+
+(use-package 
+  company-go 
+  :init (setq company-tooltip-limit 20) 
+  (setq company-idle-delay .3) 
+  (setq company-echo-delay 0))
+
+(use-package 
+  flycheck-gometalinter 
+  :ensure t 
+  :config (progn (flycheck-gometalinter-setup)))
+
+(use-package 
   rust-mode 
-  :init (add-hook 'rust-mode-hook 'cargo-minor-mode))
+  :init (add-hook 'rust-mode-hook 'cargo-minor-mode) 
+  (setq rust-format-on-save t))
 
 (use-package 
   racer 
@@ -118,10 +137,30 @@
   flycheck-rust 
   :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
+;;(use-package
+;;  lsp-mode
+;;  :config
+;;  (with-eval-after-load 'lsp-mode
+;;    (lsp-flycheck-setup)))
+
+;;(use-package
+;;  lsp-rust
+;;  :init (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls")))
+
+;;(use-package
+;;  rust-mode
+;;  :init
+;;  (add-hook 'rust-mode-hook 'cargo-minor-mode)
+;;  (add-hook 'rust-mode-hook #'lsp-rust-enable)
+;;  (add-hook 'rust-mode-hook #'flycheck-mode))
+
 (use-package 
   jedi 
   :init (add-hook 'python-mode-hook 'jedi:setup) 
   (setq jedi:complete-on-dot t))
+
+(use-package 
+  cython-mode)
 
 (defun recompile-quietly () 
   "Re-compile without changing the window configuration." 
@@ -136,7 +175,7 @@
   (add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode)) 
   (add-hook 'glsl-mode-hook (lambda () 
-                              (irony-mode -1)))
+                              (irony-mode -1))) 
   (add-hook 'glsl-mode-hook 'auto-complete-mode))
 
 (flycheck-define-checker glsl-lang-validator "A GLSL checker using glslangValidator.
@@ -155,9 +194,6 @@
 (add-to-list 'flycheck-checkers 'glsl-lang-validator)
 
 (use-package 
-  inform7-mode)
-
-(use-package 
   opencl-mode)
 
 (use-package 
@@ -166,24 +202,21 @@
 (use-package 
   flymake-json)
 
-(defun my/use-eslint-from-node-modules ()
-  (let* ((root (locate-dominating-file
-                (or (buffer-file-name) default-directory)
-                "node_modules"))
-         (eslint (and root
-                      (expand-file-name "node_modules/eslint/bin/eslint.js"
-                                        root))))
-    (when (and eslint (file-executable-p eslint))
+(defun my/use-eslint-from-node-modules () 
+  (let* ((root (locate-dominating-file (or (buffer-file-name) 
+                                           default-directory) "node_modules")) 
+         (eslint (and root 
+                      (expand-file-name "node_modules/eslint/bin/eslint.js" root)))) 
+    (when (and eslint 
+               (file-executable-p eslint)) 
       (setq-local flycheck-javascript-eslint-executable eslint))))
 
 (use-package 
   js2-mode 
   :interpreter ("node" . js-mode) 
-  :init
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-  (setq-default flycheck-disabled-checkers
-  (append flycheck-disabled-checkers '(javascript-jshint)))
-  (flycheck-add-mode 'javascript-eslint 'js2-mode)
+  :init (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)) 
+  (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(javascript-jshint))) 
+  (flycheck-add-mode 'javascript-eslint 'js2-mode) 
   (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules))
 
 (use-package 
@@ -205,6 +238,23 @@
 
 (use-package 
   epg)
+
+(load "~/.emacs.d/lisp/PG/generic/proof-site")
+
+(setq proof-splash-seen t)
+
+(setq proof-three-window-mode-policy 'hybrid)
+
+(setq proof-script-fly-past-comments t)
+
+(with-eval-after-load 'coq (define-key coq-mode-map (kbd "s-<return>") #'proof-goto-point) 
+                      (define-key coq-mode-map (kbd "M-n") nil) 
+                      (define-key coq-mode-map (kbd "M-p") nil) 
+                      (define-key coq-mode-map (kbd "s-n") #'proof-assert-next-command-interactive))
+
+(use-package 
+  company-coq 
+  :config (add-hook 'coq-mode-hook #'company-coq-initialize))
 
 ;; Keybindings
 (use-package 
@@ -315,7 +365,13 @@
   (when (derived-mode-p 'emacs-lisp-mode) 
     (elisp-format-buffer)) 
   (when (derived-mode-p 'python-mode) 
-    (py-autopep8-buffer)))
+    (py-autopep8-buffer)) 
+  (when (derived-mode-p 'cython-mode) 
+    (py-autopep8-buffer)) 
+  (when (derived-mode-p 'rust-mode) 
+    (rust-format-buffer)) 
+  (when (derived-mode-p 'go-mode) 
+    (gofmt)))
 (global-set-key (kbd "s-a") `reformat-code)
 (setq-default c-basic-offset 4)
 (setq-default indent-tabs-mode nil)
@@ -323,13 +379,16 @@
 (use-package 
   whitespace-cleanup-mode 
   :init (add-hook 'python-mode-hook 'whitespace-cleanup-mode) 
+  (add-hook 'cython-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'c-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'c++-mode-hook 'whitespace-cleanup-mode) 
+  (add-hook 'rust-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'java-mode-hook 'whitespace-cleanup-mode))
 
 (use-package 
   py-autopep8 
-  :init (add-hook 'python-mode-hook 'py-autopep8-enable-on-save))
+  :init (add-hook 'python-mode-hook 'py-autopep8-enable-on-save) 
+  (add-hook 'cython-mode-hook 'py-autopep8-enable-on-save))
 
 (use-package 
   smartparens 
