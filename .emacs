@@ -21,7 +21,7 @@
  '(magit-commit-arguments nil)
  '(package-selected-packages
    (quote
-    (twilight-bright-theme go-mode web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme company-emacs-eclim column-marker)))
+    (irony twilight-bright-theme go-mode web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme column-marker)))
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -51,36 +51,12 @@
 (setq mac-control-modifier 'control)    ; make Control key do Control
 (setq ns-function-modifier 'hyper)      ; make Fn key do Hyper
 
-(defun eclim-run-test () 
-  (interactive) 
-  (if (not (string= major-mode "java-mode")) 
-      (message "Sorry cannot run current buffer.")) 
-  (eclim-project-build) 
-  (compile (concat eclim-executable " -command java_junit -p " eclim--project-name " -t "
-                   (eclim-package-and-class))))
-
-(use-package 
-  eclim 
-  :init (require 'eclimd) 
-  :bind (("s-x s-e" . eclim-run-test) 
-         ("s-x s-c" . eclim-project-build) 
-         ("s-x s-r" . eclim-run-class) 
-         ("s-x s-o" . eclim-java-import-organize) 
-         ("s-x s-d" . eclim-java-find-declaration) 
-         ("s-x s-q" . eclim-java-show-documentation-for-current-element) 
-         ("s-x s-f" . eclim-problems-correct)))
-
 ;; Autocomplete
 (use-package 
   company 
   :init (add-hook 'after-init-hook 'global-company-mode))
-(use-package 
-  company-emacs-eclim 
-  :init (add-hook 'after-init-hook 'global-company-mode) 
-  (company-emacs-eclim-setup))
 
 (eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
-(eval-after-load 'company '(add-to-list 'company-backends 'company-eclim))
 (add-hook 'c++-mode-hook 'irony-mode)
 (add-hook 'c-mode-hook 'irony-mode)
 (add-hook 'objc-mode-hook 'irony-mode)
@@ -121,6 +97,13 @@
   flycheck-gometalinter 
   :ensure t 
   :config (progn (flycheck-gometalinter-setup)))
+
+(use-package 
+  cargo 
+  :bind (:map cargo-minor-mode-map
+              ("s-y" . cargo-process-clippy) 
+              ("s-m" . cargo-process-build) 
+              ("s-t" . cargo-process-test )))
 
 (use-package 
   rust-mode 
@@ -354,7 +337,7 @@
 (defun reformat-code () 
   (interactive)
   ;; Add whatever languages you want here
-  (when (derived-mode-p 'c++-mode 'c-mode 'java-mode 'glsl-mode) 
+  (when (derived-mode-p 'c++-mode 'c-mode 'java-mode 'cuda-mode 'glsl-mode) 
     (progn 
       (defvar astyle-x) 
       (defvar astyle-y) 
@@ -594,10 +577,3 @@ at the beggining of the new line if inside of a comment."
 
 (provide '.emacs)
 ;;; .emacs ends here
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-(put 'downcase-region 'disabled nil)
