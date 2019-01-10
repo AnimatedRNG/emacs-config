@@ -1,4 +1,4 @@
-;; Custom and other important things
+                                        ; Custom and other important things
 
 ;; Save all tempfiles in $TMPDIR/emacs$UID/
 (defconst emacs-tmp-dir (format "%s%s%s/" temporary-file-directory "emacs" (user-uid)))
@@ -11,17 +11,23 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("c1390663960169cd92f58aad44ba3253227d8f715c026438303c09b9fb66cdfb" "71ecffba18621354a1be303687f33b84788e13f40141580fa81e7840752d31bf" "8b313e1793da427e90c034dbe74f3ad9092ac291846c0f855908c42a6bda1ff4" default)))
- '(inhibit-startup-buffer-menu t)
- '(inhibit-startup-screen t)
- '(js2-basic-offset 4)
- '(js2-bounce-indent-p t)
- '(magit-commit-arguments nil)
- '(package-selected-packages
-   (quote
-    (irony twilight-bright-theme go-mode web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme column-marker)))
+ '(custom-safe-themes (quote ("c1390663960169cd92f58aad44ba3253227d8f715c026438303c09b9fb66cdfb"
+                              "71ecffba18621354a1be303687f33b84788e13f40141580fa81e7840752d31bf"
+                              "8b313e1793da427e90c034dbe74f3ad9092ac291846c0f855908c42a6bda1ff4"
+                              default))) 
+ '(inhibit-startup-buffer-menu t) 
+ '(inhibit-startup-screen t) 
+ '(js2-basic-offset 4) 
+ '(js2-bounce-indent-p t) 
+ '(magit-commit-arguments nil) 
+ '(package-selected-packages (quote (haskell-mode matlab-mode iodine-theme rmsbolt irony
+                                                  twilight-bright-theme go-mode web-beautify
+                                                  whitespace-cleanup-mode use-package sublimity
+                                                  smartparens redo+ py-autopep8 monokai-theme
+                                                  markdown-mode magit jekyll-modes jedi
+                                                  hc-zenburn-theme god-mode glsl-mode flymake-json
+                                                  flycheck elmacro elisp-format cyberpunk-theme
+                                                  column-marker))) 
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -43,7 +49,9 @@
   flycheck 
   :init (add-hook 'prog-mode-hook #'flycheck-mode) 
   :config (setq flycheck-check-syntax-automatically '(save new-line) flycheck-idle-change-delay 5.0
-                flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t))
+                flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t)
+  (setq flycheck-disabled-checkers '(rust rust-cargo rust-clippy))
+  )
 
 (global-set-key (kbd "s-x") nil)
 (setq mac-command-modifier 'meta)       ; make cmd key do Meta
@@ -81,6 +89,9 @@
 (cmake-ide-setup)
 
 (use-package 
+  rmsbolt)
+
+(use-package 
   go-mode 
   :init (add-hook 'before-save-hook #'gofmt-before-save) 
   (add-hook 'go-mode-hook (lambda () 
@@ -106,36 +117,42 @@
               ("s-t" . cargo-process-test )))
 
 (use-package 
+  flymake-diagnostic-at-point 
+  :after flymake 
+  :config (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode) 
+  (setq flymake-diagnostic-at-point-timer-delay 0.9))
+
+(use-package 
   rust-mode 
-  :init (add-hook 'rust-mode-hook 'cargo-minor-mode) 
+  :init (add-hook 'rust-mode-hook 'eglot-ensure) 
   (setq rust-format-on-save t))
 
 (use-package 
-  racer 
-  :init (add-hook 'rust-mode-hook #'racer-mode) 
-  (add-hook 'racer-mode-hook #'eldoc-mode) 
-  (add-hook 'racer-mode-hook #'company-mode))
+  eglot 
+  :bind (:map eglot-mode-map
+              ("s-d" . eglot-help-at-point) 
+              ("s-e" . xref-find-definitions) 
+              ("s-/" . eglot-rename)
+              ("<s-return>" . eglot-code-actions)
+              ) 
+  :config (setq eglot-put-doc-in-help-buffer t))
 
-(use-package 
-  flycheck-rust 
-  :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
-
-;;(use-package
-;;  lsp-mode
-;;  :config
-;;  (with-eval-after-load 'lsp-mode
-;;    (lsp-flycheck-setup)))
-
-;;(use-package
-;;  lsp-rust
-;;  :init (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls")))
-
-;;(use-package
+;; (use-package
 ;;  rust-mode
-;;  :init
-;;  (add-hook 'rust-mode-hook 'cargo-minor-mode)
-;;  (add-hook 'rust-mode-hook #'lsp-rust-enable)
-;;  (add-hook 'rust-mode-hook #'flycheck-mode))
+;;  :init (add-hook 'rust-mode-hook 'cargo-minor-mode)
+;;  (setq rust-format-on-save t))
+
+;;(use-package
+;;  racer
+;;  :init (add-hook 'rust-mode-hook #'racer-mode)
+;;  (add-hook 'racer-mode-hook #'eldoc-mode)
+;;  (add-hook 'racer-mode-hook #'company-mode)
+;;  :bind ((kbd "s-d" . racer-describe)
+;;         (kbd "s-return" . racer-find-definition)))
+
+;;(use-package
+;;  flycheck-rust
+;;  :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 (use-package 
   jedi 
@@ -222,22 +239,22 @@
 (use-package 
   epg)
 
-(load "~/.emacs.d/lisp/PG/generic/proof-site")
+;;(load "~/.emacs.d/lisp/PG/generic/proof-site")
 
-(setq proof-splash-seen t)
+;;(setq proof-splash-seen t)
 
-(setq proof-three-window-mode-policy 'hybrid)
+;;(setq proof-three-window-mode-policy 'hybrid)
 
-(setq proof-script-fly-past-comments t)
+;;(setq proof-script-fly-past-comments t)
 
-(with-eval-after-load 'coq (define-key coq-mode-map (kbd "s-<return>") #'proof-goto-point) 
-                      (define-key coq-mode-map (kbd "M-n") nil) 
-                      (define-key coq-mode-map (kbd "M-p") nil) 
-                      (define-key coq-mode-map (kbd "s-n") #'proof-assert-next-command-interactive))
+;;(with-eval-after-load 'coq (define-key coq-mode-map (kbd "s-<return>") #'proof-goto-point)
+;;                      (define-key coq-mode-map (kbd "M-n") nil)
+;;                      (define-key coq-mode-map (kbd "M-p") nil)
+;;                      (define-key coq-mode-map (kbd "s-n") #'proof-assert-next-command-interactive))
 
-(use-package 
-  company-coq 
-  :config (add-hook 'coq-mode-hook #'company-coq-initialize))
+;;(use-package
+;;  company-coq
+;;  :config (add-hook 'coq-mode-hook #'company-coq-initialize))
 
 ;; Keybindings
 (use-package 
@@ -302,7 +319,6 @@
 (global-set-key (kbd "s-)") `end-kbd-macro)
 (global-set-key (kbd "s-{") `shrink-window-horizontally)
 (global-set-key (kbd "s-}") `enlarge-window-horizontally)
-(global-set-key (kbd "s-e") `call-last-kbd-macro)
 (global-set-key (kbd "s-k") `kill-buffer)
 (global-set-key (kbd "s-h") `mark-whole-buffer)
 (global-set-key (kbd "s-u") `universal-argument)
@@ -435,7 +451,7 @@ at the beggining of the new line if inside of a comment."
 (defvar serif-preserve-default-list nil 
   "A list holding the faces that preserve the default family and
   height when TOGGLE-SERIF is used.")
-(setq serif-preserve-default-list '( ;; LaTeX markup
+(setq serif-preserve-default-list '(;; LaTeX markup
                                     font-latex-math-face font-latex-sedate-face
                                                          font-latex-warning-face
                                                          ;; org markup
@@ -577,3 +593,9 @@ at the beggining of the new line if inside of a comment."
 
 (provide '.emacs)
 ;;; .emacs ends here
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
