@@ -134,7 +134,7 @@
               ("s-e" . xref-find-definitions) 
               ("s-/" . eglot-rename)
               ("<s-return>" . eglot-code-actions)
-              ) 
+              )
   :config (setq eglot-put-doc-in-help-buffer t))
 
 ;; (use-package
@@ -178,19 +178,13 @@
                               (irony-mode -1))) 
   (add-hook 'glsl-mode-hook 'auto-complete-mode))
 
-(flycheck-define-checker glsl-lang-validator "A GLSL checker using glslangValidator.
-  See URL https://www.khronos.org/opengles/sdk/tools/Reference-Compiler/" 
-                         :command ("glslangValidator -S frag " source) 
-                         :error-patterns ((error 
-                                           line-start
-                                           "ERROR: "
-                                           column
-                                           ":"
-                                           line
-                                           ": "
-                                           (message)
-                                           line-end)) 
-                         :modes glsl-mode)
+(flycheck-define-checker glsl-lang-validator
+  "A GLSL checker using glslangValidator.
+  See URL https://www.khronos.org/opengles/sdk/tools/Reference-Compiler/"
+  :command ("glslangValidator" source)
+  :error-patterns
+  ((error line-start "ERROR: " column ":" line ": " (message) line-end))
+  :modes glsl-mode)
 (add-to-list 'flycheck-checkers 'glsl-lang-validator)
 
 (use-package 
