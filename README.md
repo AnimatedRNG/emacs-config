@@ -7,6 +7,8 @@ to handle the config file.
 
 This configuration has the following settings/features/tweaks:
 
+# **This list of tweaks is very outdated, please ignore it**
+
 #### Tweaks
 
 * No backup files
