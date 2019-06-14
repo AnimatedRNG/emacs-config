@@ -11,23 +11,17 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes (quote ("c1390663960169cd92f58aad44ba3253227d8f715c026438303c09b9fb66cdfb"
-                              "71ecffba18621354a1be303687f33b84788e13f40141580fa81e7840752d31bf"
-                              "8b313e1793da427e90c034dbe74f3ad9092ac291846c0f855908c42a6bda1ff4"
-                              default))) 
- '(inhibit-startup-buffer-menu t) 
- '(inhibit-startup-screen t) 
- '(js2-basic-offset 4) 
- '(js2-bounce-indent-p t) 
- '(magit-commit-arguments nil) 
- '(package-selected-packages (quote (haskell-mode matlab-mode iodine-theme rmsbolt irony
-                                                  twilight-bright-theme go-mode web-beautify
-                                                  whitespace-cleanup-mode use-package sublimity
-                                                  smartparens redo+ py-autopep8 monokai-theme
-                                                  markdown-mode magit jekyll-modes jedi
-                                                  hc-zenburn-theme god-mode glsl-mode flymake-json
-                                                  flycheck elmacro elisp-format cyberpunk-theme
-                                                  column-marker))) 
+ '(custom-safe-themes
+   (quote
+    ("c1390663960169cd92f58aad44ba3253227d8f715c026438303c09b9fb66cdfb" "71ecffba18621354a1be303687f33b84788e13f40141580fa81e7840752d31bf" "8b313e1793da427e90c034dbe74f3ad9092ac291846c0f855908c42a6bda1ff4" default)))
+ '(inhibit-startup-buffer-menu t)
+ '(inhibit-startup-screen t)
+ '(js2-basic-offset 4)
+ '(js2-bounce-indent-p t)
+ '(magit-commit-arguments nil)
+ '(package-selected-packages
+   (quote
+    (haskell-mode matlab-mode iodine-theme rmsbolt irony twilight-bright-theme go-mode web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme column-marker)))
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -49,9 +43,8 @@
   flycheck 
   :init (add-hook 'prog-mode-hook #'flycheck-mode) 
   :config (setq flycheck-check-syntax-automatically '(save new-line) flycheck-idle-change-delay 5.0
-                flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t)
-  (setq flycheck-disabled-checkers '(rust rust-cargo rust-clippy))
-  )
+                flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t) 
+  (setq flycheck-disabled-checkers '(rust rust-cargo rust-clippy)))
 
 (global-set-key (kbd "s-x") nil)
 (setq mac-command-modifier 'meta)       ; make cmd key do Meta
@@ -132,9 +125,8 @@
   :bind (:map eglot-mode-map
               ("s-d" . eglot-help-at-point) 
               ("s-e" . xref-find-definitions) 
-              ("s-/" . eglot-rename)
-              ("<s-return>" . eglot-code-actions)
-              )
+              ("s-/" . eglot-rename) 
+              ("<s-return>" . eglot-code-actions)) 
   :config (setq eglot-put-doc-in-help-buffer t))
 
 ;; (use-package
@@ -178,13 +170,19 @@
                               (irony-mode -1))) 
   (add-hook 'glsl-mode-hook 'auto-complete-mode))
 
-(flycheck-define-checker glsl-lang-validator
-  "A GLSL checker using glslangValidator.
-  See URL https://www.khronos.org/opengles/sdk/tools/Reference-Compiler/"
-  :command ("glslangValidator" source)
-  :error-patterns
-  ((error line-start "ERROR: " column ":" line ": " (message) line-end))
-  :modes glsl-mode)
+(flycheck-define-checker glsl-lang-validator "A GLSL checker using glslangValidator.
+  See URL https://www.khronos.org/opengles/sdk/tools/Reference-Compiler/" 
+                         :command ("glslangValidator" source) 
+                         :error-patterns ((error 
+                                           line-start
+                                           "ERROR: "
+                                           column
+                                           ":"
+                                           line
+                                           ": "
+                                           (message)
+                                           line-end)) 
+                         :modes glsl-mode)
 (add-to-list 'flycheck-checkers 'glsl-lang-validator)
 
 (use-package 
@@ -235,20 +233,23 @@
 
 ;;(load "~/.emacs.d/lisp/PG/generic/proof-site")
 
-;;(setq proof-splash-seen t)
+(use-package 
+  proof-general 
+  :init (setq proof-splash-seen t)
 
-;;(setq proof-three-window-mode-policy 'hybrid)
+  (setq proof-three-window-mode-policy 'hybrid)
 
-;;(setq proof-script-fly-past-comments t)
+  (setq proof-script-fly-past-comments t)
 
-;;(with-eval-after-load 'coq (define-key coq-mode-map (kbd "s-<return>") #'proof-goto-point)
-;;                      (define-key coq-mode-map (kbd "M-n") nil)
-;;                      (define-key coq-mode-map (kbd "M-p") nil)
-;;                      (define-key coq-mode-map (kbd "s-n") #'proof-assert-next-command-interactive))
+  (with-eval-after-load 'coq (define-key coq-mode-map (kbd "s-<return>") #'proof-goto-point) 
+                        (define-key coq-mode-map (kbd "M-n") nil) 
+                        (define-key coq-mode-map (kbd "M-p") nil) 
+                        (define-key coq-mode-map (kbd "s-n")
+                          #'proof-assert-next-command-interactive)))
 
-;;(use-package
-;;  company-coq
-;;  :config (add-hook 'coq-mode-hook #'company-coq-initialize))
+(use-package 
+  company-coq 
+  :config (add-hook 'coq-mode-hook #'company-coq-initialize))
 
 ;; Keybindings
 (use-package 
@@ -394,6 +395,8 @@
     (sp-local-pair "/*" "*/" 
                    :post-handlers '((" | " "SPC") 
                                     ("* ||\n[i]" "RET")))))
+(use-package
+  visual-fill-column)
 
 (setq column-number-mode t)
 (use-package 
