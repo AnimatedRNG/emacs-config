@@ -57,29 +57,27 @@
   company 
   :init (add-hook 'after-init-hook 'global-company-mode))
 
-(eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
-(add-hook 'c++-mode-hook 'irony-mode)
-(add-hook 'c-mode-hook 'irony-mode)
-(add-hook 'objc-mode-hook 'irony-mode)
+;;(eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
+;;(add-hook 'c++-mode-hook 'irony-mode)
+;;(add-hook 'c-mode-hook 'irony-mode)
+;;(add-hook 'objc-mode-hook 'irony-mode)
 
-;; replace the `completion-at-point' and `complete-symbol' bindings in
-;; irony-mode's buffers by irony-mode's function
-(defun my-irony-mode-hook () 
-  (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async) 
-  (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
-(add-hook 'irony-mode-hook 'my-irony-mode-hook)
-(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-(global-unset-key (kbd "C-/"))
-(use-package 
-  rtags 
-  :init (rtags-enable-standard-keybindings c-mode-base-map "C-/"))
-(use-package 
-  cmake-ide 
-  :init (setq cmake-ide-flags-c++ '("-I/usr/include/c++/7.1.1"
-                                    "-I/usr/include/c++/7.1.1/x86_64-pc-linux-gnu"
-                                    "-I/usr/include/c++/7.1.1/backward" "-I/usr/local/include"
-                                    "-I/usr/include" "-I/usr/share/include")))
-(cmake-ide-setup)
+;;(defun my-irony-mode-hook () 
+;;  (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async) 
+;;  (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
+;;(add-hook 'irony-mode-hook 'my-irony-mode-hook)
+;;(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+;;(global-unset-key (kbd "C-/"))
+;;(use-package 
+;;  rtags 
+;;  :init (rtags-enable-standard-keybindings c-mode-base-map "C-/"))
+;;(use-package 
+;;  cmake-ide 
+;;  :init (setq cmake-ide-flags-c++ '("-I/usr/include/c++/7.1.1"
+;;                                    "-I/usr/include/c++/7.1.1/x86_64-pc-linux-gnu"
+;;                                    "-I/usr/include/c++/7.1.1/backward" "-I/usr/local/include"
+;;                                    "-I/usr/include" "-I/usr/share/include")))
+;;(cmake-ide-setup)
 
 (use-package 
   rmsbolt)
@@ -126,7 +124,8 @@
               ("s-d" . eglot-help-at-point) 
               ("s-e" . xref-find-definitions) 
               ("s-/" . eglot-rename) 
-              ("<s-return>" . eglot-code-actions)) 
+              ("<s-return>" . eglot-code-actions))
+  :init (add-hook 'c++-mode-hook 'eglot-ensure)
   :config (setq eglot-put-doc-in-help-buffer t))
 
 ;; (use-package
