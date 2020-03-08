@@ -342,19 +342,16 @@
                        (line-beginning-position 2)))))
 
 ;; Formatting
+
+(use-package clang-format)
+
 (use-package 
   elisp-format)
 (defun reformat-code () 
   (interactive)
   ;; Add whatever languages you want here
-  (when (derived-mode-p 'c++-mode 'c-mode 'java-mode 'cuda-mode 'glsl-mode) 
-    (progn 
-      (defvar astyle-x) 
-      (defvar astyle-y) 
-      (setq astyle-x (line-number-at-pos) astyle-y (line-number-at-pos (point-max))) 
-      (shell-command-on-region (point-min) 
-                               (point-max) "astyle" t t) 
-      (with-no-warnings (goto-line astyle-x)))) 
+  (when (derived-mode-p 'c++-mode 'c-mode 'cuda-mode 'glsl-mode) 
+    (clang-format-buffer))
   (when (derived-mode-p 'emacs-lisp-mode) 
     (elisp-format-buffer)) 
   (when (derived-mode-p 'python-mode) 
