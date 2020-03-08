@@ -21,7 +21,7 @@
  '(magit-commit-arguments nil)
  '(package-selected-packages
    (quote
-    (haskell-mode matlab-mode iodine-theme rmsbolt irony twilight-bright-theme go-mode web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ py-autopep8 monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme column-marker)))
+    (haskell-mode matlab-mode iodine-theme rmsbolt irony twilight-bright-theme go-mode web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme column-marker)))
  '(tool-bar-mode nil))
 
 ;; Package configuration
@@ -355,9 +355,9 @@
   (when (derived-mode-p 'emacs-lisp-mode) 
     (elisp-format-buffer)) 
   (when (derived-mode-p 'python-mode) 
-    (py-autopep8-buffer)) 
+    (blacken-buffer)) 
   (when (derived-mode-p 'cython-mode) 
-    (py-autopep8-buffer)) 
+    (blacken-buffer)) 
   (when (derived-mode-p 'rust-mode) 
     (rust-format-buffer)) 
   (when (derived-mode-p 'go-mode) 
@@ -375,10 +375,18 @@
   (add-hook 'rust-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'java-mode-hook 'whitespace-cleanup-mode))
 
-(use-package 
-  py-autopep8 
-  :init (add-hook 'python-mode-hook 'py-autopep8-enable-on-save) 
-  (add-hook 'cython-mode-hook 'py-autopep8-enable-on-save))
+;; (use-package 
+;;   py-autopep8 
+;;   :init (add-hook 'python-mode-hook 'py-autopep8-enable-on-save) 
+;;   (add-hook 'cython-mode-hook 'py-autopep8-enable-on-save))
+;;(use-package python-black
+;;  :demand t
+;;  :after python
+;;  :init (add-hook 'python-mode-hook 'python-black-buffer)
+;;  (setq python-black-command "black"))
+(use-package blacken
+  :after python
+  :init (add-hook 'python-mode-hook 'blacken-buffer))
 
 (use-package 
   smartparens 
