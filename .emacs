@@ -21,26 +21,44 @@
  '(magit-commit-arguments nil)
  '(package-selected-packages
    (quote
-    (haskell-mode matlab-mode iodine-theme rmsbolt irony twilight-bright-theme go-mode web-beautify whitespace-cleanup-mode use-package sublimity smartparens redo+ monokai-theme markdown-mode magit jekyll-modes jedi hc-zenburn-theme god-mode glsl-mode flymake-json flycheck elmacro elisp-format cyberpunk-theme column-marker)))
+    (iodine-theme irony twilight-bright-theme web-beautify sublimity redo+ jekyll-modes jedi hc-zenburn-theme flymake-json elisp-format column-marker)))
  '(tool-bar-mode nil))
 
 ;; Package configuration
-(require 'package)
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/") 
-                         ("marmalade" . "https://marmalade-repo.org/packages/") 
-                         ("melpa" . "https://melpa.org/packages/")))
-(package-initialize)
+
+;;(require 'package)
+;;(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/") 
+;;                         ("marmalade" . "https://marmalade-repo.org/packages/") 
+;;                         ("melpa" . "https://melpa.org/packages/")))
+;;(package-initialize)
 (setq shell-file-name "/bin/bash")
-(unless (package-installed-p 'use-package) 
-  (package-refresh-contents) 
-  (package-install 'use-package))
+;;(unless (package-installed-p 'use-package) 
+;;  (package-refresh-contents) 
+;;  (package-install 'use-package))
+
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(straight-use-package 'use-package)
 
 (setq use-package-always-ensure t)
 (eval-when-compile 
   (require 'use-package))
+(setq straight-use-package-by-default t)
 
 (use-package 
-  flycheck 
+  flycheck
+  
   :init (add-hook 'prog-mode-hook #'flycheck-mode) 
   :config (setq flycheck-check-syntax-automatically '(save new-line) flycheck-idle-change-delay 5.0
                 flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t) 
@@ -54,7 +72,8 @@
 
 ;; Autocomplete
 (use-package 
-  company 
+  company
+  
   :init (add-hook 'after-init-hook 'global-company-mode))
 
 ;;(eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
@@ -80,46 +99,48 @@
 ;;(cmake-ide-setup)
 
 (use-package 
-  rmsbolt)
-
-(use-package 
-  go-mode 
+  go-mode
+  
   :init (add-hook 'before-save-hook #'gofmt-before-save) 
   (add-hook 'go-mode-hook (lambda () 
                             (set (make-local-variable 'company-backends) 
                                  '(company-go)))))
 
 (use-package 
-  company-go 
+  company-go
+  
   :init (setq company-tooltip-limit 20) 
   (setq company-idle-delay .3) 
   (setq company-echo-delay 0))
 
 (use-package 
-  flycheck-gometalinter 
+  flycheck-gometalinter
+  
   :ensure t 
   :config (progn (flycheck-gometalinter-setup)))
 
 (use-package 
-  cargo 
+  cargo
+  
   :bind (:map cargo-minor-mode-map
               ("s-y" . cargo-process-clippy) 
               ("s-m" . cargo-process-build) 
               ("s-t" . cargo-process-test )))
 
 (use-package 
-  flymake-diagnostic-at-point 
+  flymake-diagnostic-at-point
+  
   :after flymake 
   :config (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode) 
   (setq flymake-diagnostic-at-point-timer-delay 0.9))
 
 (use-package 
-  rust-mode 
-  :init (add-hook 'rust-mode-hook 'eglot-ensure) 
-  (setq rust-format-on-save t))
+  rust-mode
+  :init (add-hook 'rust-mode-hook 'eglot-ensure))
 
 (use-package 
-  eglot 
+  eglot
+  
   :bind (:map eglot-mode-map
               ("s-d" . eglot-help-at-point) 
               ("s-e" . xref-find-definitions) 
@@ -146,11 +167,13 @@
 ;;  :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 (use-package 
-  jedi 
+  jedi
+  
   :init (add-hook 'python-mode-hook 'jedi:setup) 
   (setq jedi:complete-on-dot t))
 
-(use-package 
+(use-package
+  
   cython-mode)
 
 (defun recompile-quietly () 
@@ -159,7 +182,8 @@
   (save-window-excursion (recompile)))
 
 (use-package 
-  glsl-mode 
+  glsl-mode
+  
   :init (autoload 'glsl-mode "glsl-mode" nil t) 
   (add-to-list 'auto-mode-alist '("\\.glsl\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.vert\\'" . glsl-mode)) 
@@ -184,13 +208,16 @@
                          :modes glsl-mode)
 (add-to-list 'flycheck-checkers 'glsl-lang-validator)
 
-(use-package 
+(use-package
+  
   opencl-mode)
 
-(use-package 
+(use-package
+  
   cuda-mode)
 
-(use-package 
+(use-package
+  
   flymake-json)
 
 (defun my/use-eslint-from-node-modules () 
@@ -203,37 +230,44 @@
       (setq-local flycheck-javascript-eslint-executable eslint))))
 
 (use-package 
-  js2-mode 
+  js2-mode
+  
   :interpreter ("node" . js-mode) 
   :init (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)) 
   (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(javascript-jshint))) 
   (flycheck-add-mode 'javascript-eslint 'js2-mode) 
   (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules))
 
-(use-package 
+(use-package
+  
   skewer-mode 
   :init (add-hook 'js2-mode-hook 'skewer-mode))
 
 (use-package 
-  ac-js2 
+  ac-js2
+  
   :init (add-hook 'js2-mode-hook 'ac-js2-mode) 
   (setq ac-js2-evaluate-calls t))
 
 (use-package 
-  web-beautify 
+  web-beautify
+  
   :init (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js))
 
 (use-package 
-  magit 
+  magit
+  
   :init (add-hook 'after-save-hook 'magit-after-save-refresh-status))
 
-(use-package 
+(use-package
+  
   epg)
 
-;;(load "~/.emacs.d/lisp/PG/generic/proof-site")
+;; (load "~/.emacs.d/lisp/PG/generic/proof-site")
 
 (use-package 
-  proof-general 
+  proof-general
+  
   :init (setq proof-splash-seen t)
 
   (setq proof-three-window-mode-policy 'hybrid)
@@ -246,30 +280,34 @@
                         (define-key coq-mode-map (kbd "s-n")
                           #'proof-assert-next-command-interactive)))
 
-(use-package 
-  company-coq 
-  :config (add-hook 'coq-mode-hook #'company-coq-initialize))
+;;(use-package 
+;;  company-coq
+;;  
+;;  :config (add-hook 'coq-mode-hook #'company-coq-initialize))
 
 ;; Keybindings
 (use-package 
-  elmacro 
+  elmacro
+  
   :init (elmacro-mode))
 (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") `repeat)
 
 (use-package 
-  god-mode 
+  god-mode
+  
   :init (global-set-key (kbd "<escape>") 'god-mode-all))
 
 (global-unset-key (kbd "M-s"))
 (global-set-key (kbd "M-s") `save-buffer)
 
-(use-package 
-  redo+)
+;;(use-package 
+;;  redo+)
+
 (global-unset-key (kbd "C-x u"))
 (global-set-key (kbd "C-u") `undo)
 (global-set-key (kbd "s-u") `undo)
-(global-set-key (kbd "s-r") `redo)
+;; (global-set-key (kbd "s-r") `redo)
 
 (defun top-join-line () 
   (interactive) 
@@ -345,7 +383,8 @@
 
 (use-package clang-format)
 
-(use-package 
+(use-package
+  
   elisp-format)
 (defun reformat-code () 
   (interactive)
@@ -367,7 +406,8 @@
 (setq-default indent-tabs-mode nil)
 
 (use-package 
-  whitespace-cleanup-mode 
+  whitespace-cleanup-mode
+  
   :init (add-hook 'python-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'cython-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'c-mode-hook 'whitespace-cleanup-mode) 
@@ -385,11 +425,13 @@
 ;;  :init (add-hook 'python-mode-hook 'python-black-buffer)
 ;;  (setq python-black-command "black"))
 (use-package blacken
+  
   :after python
   :init (add-hook 'python-mode-hook 'blacken-buffer))
 
 (use-package 
-  smartparens 
+  smartparens
+  
   :init (require 'smartparens-config) 
   (show-smartparens-global-mode +1) 
   (smartparens-global-mode 1) 
@@ -400,11 +442,13 @@
                    :post-handlers '((" | " "SPC") 
                                     ("* ||\n[i]" "RET")))))
 (use-package
+  
   visual-fill-column)
 
 (setq column-number-mode t)
 (use-package 
-  column-marker 
+  column-marker
+  
   :init (add-hook 'foo-mode-hook (lambda () 
                                    (interactive) 
                                    (column-marker-1 80))))
@@ -510,18 +554,22 @@ at the beggining of the new line if inside of a comment."
 (set-frame-parameter (selected-frame) 'alpha '(95 . 90))
 (add-to-list 'default-frame-alist '(alpha . (95 . 90)))
 
-(use-package 
-  jekyll-modes)
-(use-package 
+;;(use-package
+;;  jekyll-modes)
+
+(use-package  
   pandoc-mode)
+
 (use-package 
-  markdown-mode 
+  markdown-mode
+  
   :bind (:map markdown-mode-map
               ("M-n" . next-several-lines) 
               ("M-p" . previous-several-lines) 
               ("s-n" . markdown-next-link) 
               ("s-p" . markdown-previous-link)))
-(use-package 
+(use-package
+  
   flyspell-popup)
 
 (define-key flyspell-mode-map (kbd "C-;") #'flyspell-popup-correct)
@@ -538,22 +586,25 @@ at the beggining of the new line if inside of a comment."
 (require 'dash)
 (require 's)
 
-(-each (-map (lambda (item) 
-               (format "~/.emacs.d/elpa/%s" item)) 
-             (-filter (lambda (item) 
-                        (s-contains? "theme" item)) 
-                      (directory-files "~/.emacs.d/elpa/"))) 
-  (lambda (item) 
-    (add-to-list 'custom-theme-load-path item)))
+;;(-each (-map (lambda (item) 
+;;               (format "~/.emacs.d/elpa/%s" item)) 
+;;             (-filter (lambda (item) 
+;;                        (s-contains? "theme" item)) 
+;;                      (directory-files "~/.emacs.d/elpa/"))) 
+;;  (lambda (item) 
+;;    (add-to-list 'custom-theme-load-path item)))
 
 (use-package 
-  monokai-theme 
+  monokai-theme
+  
   :init (load-theme 'monokai t))
 (use-package 
-  cyberpunk-theme 
+  cyberpunk-theme
+  
   :init (load-theme `cyberpunk t))
 (use-package 
-  hc-zenburn-theme 
+  hc-zenburn-theme
+  
   :init (load-theme 'hc-zenburn t))
 (enable-theme `hc-zenburn)
 
@@ -585,7 +636,8 @@ at the beggining of the new line if inside of a comment."
 (setq mouse-wheel-scroll-amount '(3 ((shift) . 3)))
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-follow-mouse 't)
-(use-package 
+(use-package
+  
   sublimity)
 (require 'sublimity-attractive)
 (sublimity-mode 1)
