@@ -58,7 +58,6 @@
 
 (use-package 
   flycheck
-  
   :init (add-hook 'prog-mode-hook #'flycheck-mode) 
   :config (setq flycheck-check-syntax-automatically '(save new-line) flycheck-idle-change-delay 5.0
                 flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t) 
@@ -73,34 +72,10 @@
 ;; Autocomplete
 (use-package 
   company
-  
   :init (add-hook 'after-init-hook 'global-company-mode))
-
-;;(eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
-;;(add-hook 'c++-mode-hook 'irony-mode)
-;;(add-hook 'c-mode-hook 'irony-mode)
-;;(add-hook 'objc-mode-hook 'irony-mode)
-
-;;(defun my-irony-mode-hook () 
-;;  (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async) 
-;;  (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
-;;(add-hook 'irony-mode-hook 'my-irony-mode-hook)
-;;(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-;;(global-unset-key (kbd "C-/"))
-;;(use-package 
-;;  rtags 
-;;  :init (rtags-enable-standard-keybindings c-mode-base-map "C-/"))
-;;(use-package 
-;;  cmake-ide 
-;;  :init (setq cmake-ide-flags-c++ '("-I/usr/include/c++/7.1.1"
-;;                                    "-I/usr/include/c++/7.1.1/x86_64-pc-linux-gnu"
-;;                                    "-I/usr/include/c++/7.1.1/backward" "-I/usr/local/include"
-;;                                    "-I/usr/include" "-I/usr/share/include")))
-;;(cmake-ide-setup)
 
 (use-package 
   go-mode
-  
   :init (add-hook 'before-save-hook #'gofmt-before-save) 
   (add-hook 'go-mode-hook (lambda () 
                             (set (make-local-variable 'company-backends) 
@@ -108,20 +83,17 @@
 
 (use-package 
   company-go
-  
   :init (setq company-tooltip-limit 20) 
   (setq company-idle-delay .3) 
   (setq company-echo-delay 0))
 
 (use-package 
   flycheck-gometalinter
-  
   :ensure t 
   :config (progn (flycheck-gometalinter-setup)))
 
 (use-package 
   cargo
-  
   :bind (:map cargo-minor-mode-map
               ("s-y" . cargo-process-clippy) 
               ("s-m" . cargo-process-build) 
@@ -140,7 +112,6 @@
 
 (use-package 
   eglot
-  
   :bind (:map eglot-mode-map
               ("s-d" . eglot-help-at-point) 
               ("s-e" . xref-find-definitions) 
@@ -149,31 +120,17 @@
   :init (add-hook 'c++-mode-hook 'eglot-ensure)
   :config (setq eglot-put-doc-in-help-buffer t))
 
-;; (use-package
-;;  rust-mode
-;;  :init (add-hook 'rust-mode-hook 'cargo-minor-mode)
-;;  (setq rust-format-on-save t))
-
-;;(use-package
-;;  racer
-;;  :init (add-hook 'rust-mode-hook #'racer-mode)
-;;  (add-hook 'racer-mode-hook #'eldoc-mode)
-;;  (add-hook 'racer-mode-hook #'company-mode)
-;;  :bind ((kbd "s-d" . racer-describe)
-;;         (kbd "s-return" . racer-find-definition)))
-
-;;(use-package
-;;  flycheck-rust
-;;  :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
-
-(use-package 
-  jedi
-  
-  :init (add-hook 'python-mode-hook 'jedi:setup) 
-  (setq jedi:complete-on-dot t))
+;;(use-package 
+;;  jedi
+;;  :init (add-hook 'python-mode-hook 'jedi:setup) 
+;;  (setq jedi:complete-on-dot t))
+(add-hook 'python-mode-hook 'eglot-ensure)
+(with-eval-after-load 'python
+  (define-key python-mode-map (kbd "s-r") 'python-shell-send-region)
+  (define-key python-mode-map (kbd "<C-return>") 'python-shell-send-buffer)
+)
 
 (use-package
-  
   cython-mode)
 
 (defun recompile-quietly () 
@@ -183,7 +140,6 @@
 
 (use-package 
   glsl-mode
-  
   :init (autoload 'glsl-mode "glsl-mode" nil t) 
   (add-to-list 'auto-mode-alist '("\\.glsl\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.vert\\'" . glsl-mode)) 
@@ -209,15 +165,12 @@
 (add-to-list 'flycheck-checkers 'glsl-lang-validator)
 
 (use-package
-  
   opencl-mode)
 
 (use-package
-  
   cuda-mode)
 
 (use-package
-  
   flymake-json)
 
 (defun my/use-eslint-from-node-modules () 
@@ -231,7 +184,6 @@
 
 (use-package 
   js2-mode
-  
   :interpreter ("node" . js-mode) 
   :init (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)) 
   (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(javascript-jshint))) 
@@ -239,28 +191,23 @@
   (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules))
 
 (use-package
-  
   skewer-mode 
   :init (add-hook 'js2-mode-hook 'skewer-mode))
 
 (use-package 
   ac-js2
-  
   :init (add-hook 'js2-mode-hook 'ac-js2-mode) 
   (setq ac-js2-evaluate-calls t))
 
 (use-package 
   web-beautify
-  
   :init (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js))
 
 (use-package 
   magit
-  
   :init (add-hook 'after-save-hook 'magit-after-save-refresh-status))
 
-(use-package
-  
+(use-package  
   epg)
 
 ;; (load "~/.emacs.d/lisp/PG/generic/proof-site")
@@ -280,23 +227,12 @@
                         (define-key coq-mode-map (kbd "s-n")
                           #'proof-assert-next-command-interactive)))
 
-;;(use-package 
-;;  company-coq
-;;  
-;;  :config (add-hook 'coq-mode-hook #'company-coq-initialize))
-
 ;; Keybindings
 (use-package 
   elmacro
-  
   :init (elmacro-mode))
 (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") `repeat)
-
-(use-package 
-  god-mode
-  
-  :init (global-set-key (kbd "<escape>") 'god-mode-all))
 
 (global-unset-key (kbd "M-s"))
 (global-set-key (kbd "M-s") `save-buffer)
@@ -380,12 +316,10 @@
                        (line-beginning-position 2)))))
 
 ;; Formatting
-
 (use-package clang-format)
 
-(use-package
-  
-  elisp-format)
+(use-package elisp-format)
+
 (defun reformat-code () 
   (interactive)
   ;; Add whatever languages you want here
@@ -394,9 +328,9 @@
   (when (derived-mode-p 'emacs-lisp-mode) 
     (elisp-format-buffer)) 
   (when (derived-mode-p 'python-mode) 
-    (blacken-buffer)) 
+    (eglot-format-buffer)) 
   (when (derived-mode-p 'cython-mode) 
-    (blacken-buffer)) 
+    (eglot-format-buffer)) 
   (when (derived-mode-p 'rust-mode) 
     (rust-format-buffer)) 
   (when (derived-mode-p 'go-mode) 
@@ -407,7 +341,6 @@
 
 (use-package 
   whitespace-cleanup-mode
-  
   :init (add-hook 'python-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'cython-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'c-mode-hook 'whitespace-cleanup-mode) 
@@ -415,23 +348,8 @@
   (add-hook 'rust-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'java-mode-hook 'whitespace-cleanup-mode))
 
-;; (use-package 
-;;   py-autopep8 
-;;   :init (add-hook 'python-mode-hook 'py-autopep8-enable-on-save) 
-;;   (add-hook 'cython-mode-hook 'py-autopep8-enable-on-save))
-;;(use-package python-black
-;;  :demand t
-;;  :after python
-;;  :init (add-hook 'python-mode-hook 'python-black-buffer)
-;;  (setq python-black-command "black"))
-(use-package blacken
-  
-  :after python
-  :init (add-hook 'python-mode-hook 'blacken-buffer))
-
 (use-package 
   smartparens
-  
   :init (require 'smartparens-config) 
   (show-smartparens-global-mode +1) 
   (smartparens-global-mode 1) 
@@ -442,13 +360,11 @@
                    :post-handlers '((" | " "SPC") 
                                     ("* ||\n[i]" "RET")))))
 (use-package
-  
   visual-fill-column)
 
 (setq column-number-mode t)
 (use-package 
   column-marker
-  
   :init (add-hook 'foo-mode-hook (lambda () 
                                    (interactive) 
                                    (column-marker-1 80))))
@@ -554,8 +470,42 @@ at the beggining of the new line if inside of a comment."
 (set-frame-parameter (selected-frame) 'alpha '(95 . 90))
 (add-to-list 'default-frame-alist '(alpha . (95 . 90)))
 
-;;(use-package
-;;  jekyll-modes)
+;; Fix annoying vertical window splitting.
+;; https://lists.gnu.org/archive/html/help-gnu-emacs/2015-08/msg00339.html
+(with-eval-after-load "window"
+  (defcustom split-window-below nil
+    "If non-nil, vertical splits produce new windows below."
+    :group 'windows
+    :type 'boolean)
+
+  (defcustom split-window-right nil
+    "If non-nil, horizontal splits produce new windows to the right."
+    :group 'windows
+    :type 'boolean)
+
+  (fmakunbound #'split-window-sensibly)
+
+  (defun split-window-sensibly
+      (&optional window)
+    (setq window (or window (selected-window)))
+    (or (and (window-splittable-p window t)
+             ;; Split window horizontally.
+             (split-window window nil (if split-window-right 'left  'right)))
+        (and (window-splittable-p window)
+             ;; Split window vertically.
+             (split-window window nil (if split-window-below 'above 'below)))
+        (and (eq window (frame-root-window (window-frame window)))
+             (not (window-minibuffer-p window))
+             ;; If WINDOW is the only window on its frame and is not the
+             ;; minibuffer window, try to split it horizontally disregarding the
+             ;; value of `split-width-threshold'.
+             (let ((split-width-threshold 0))
+               (when (window-splittable-p window t)
+                 (split-window window nil (if split-window-right
+                                              'left
+                                            'right))))))))
+(setq-default split-height-threshold  4
+              split-width-threshold   160) ; the reasonable limit for horizontal splits
 
 (use-package  
   pandoc-mode)
