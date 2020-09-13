@@ -11,42 +11,42 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("c1390663960169cd92f58aad44ba3253227d8f715c026438303c09b9fb66cdfb" "71ecffba18621354a1be303687f33b84788e13f40141580fa81e7840752d31bf" "8b313e1793da427e90c034dbe74f3ad9092ac291846c0f855908c42a6bda1ff4" default)))
- '(inhibit-startup-buffer-menu t)
- '(inhibit-startup-screen t)
- '(js2-basic-offset 4)
- '(js2-bounce-indent-p t)
- '(magit-commit-arguments nil)
- '(package-selected-packages
-   (quote
-    (iodine-theme irony twilight-bright-theme web-beautify sublimity redo+ jekyll-modes jedi hc-zenburn-theme flymake-json elisp-format column-marker)))
+ '(custom-safe-themes (quote ("c1390663960169cd92f58aad44ba3253227d8f715c026438303c09b9fb66cdfb"
+                              "71ecffba18621354a1be303687f33b84788e13f40141580fa81e7840752d31bf"
+                              "8b313e1793da427e90c034dbe74f3ad9092ac291846c0f855908c42a6bda1ff4"
+                              default))) 
+ '(inhibit-startup-buffer-menu t) 
+ '(inhibit-startup-screen t) 
+ '(js2-basic-offset 4) 
+ '(js2-bounce-indent-p t) 
+ '(magit-commit-arguments nil) 
+ '(package-selected-packages (quote (iodine-theme irony twilight-bright-theme web-beautify sublimity
+                                                  redo+ jekyll-modes jedi hc-zenburn-theme
+                                                  flymake-json elisp-format column-marker))) 
  '(tool-bar-mode nil))
 
 ;; Package configuration
 
 ;;(require 'package)
-;;(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/") 
-;;                         ("marmalade" . "https://marmalade-repo.org/packages/") 
+;;(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+;;                         ("marmalade" . "https://marmalade-repo.org/packages/")
 ;;                         ("melpa" . "https://melpa.org/packages/")))
 ;;(package-initialize)
 (setq shell-file-name "/bin/bash")
-;;(unless (package-installed-p 'use-package) 
-;;  (package-refresh-contents) 
+;;(unless (package-installed-p 'use-package)
+;;  (package-refresh-contents)
 ;;  (package-install 'use-package))
 
 (defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
+(let ((bootstrap-file (expand-file-name "straight/repos/straight.el/bootstrap.el"
+                                        user-emacs-directory)) 
+      (bootstrap-version 5)) 
+  (unless (file-exists-p bootstrap-file) 
+    (with-current-buffer (url-retrieve-synchronously
+                          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+                          'silent 'inhibit-cookies) 
+      (goto-char (point-max)) 
+      (eval-print-last-sexp))) 
   (load bootstrap-file nil 'nomessage))
 
 (straight-use-package 'use-package)
@@ -57,7 +57,7 @@
 (setq straight-use-package-by-default t)
 
 (use-package 
-  flycheck
+  flycheck 
   :init (add-hook 'prog-mode-hook #'flycheck-mode) 
   :config (setq flycheck-check-syntax-automatically '(save new-line) flycheck-idle-change-delay 5.0
                 flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t) 
@@ -71,29 +71,38 @@
 
 ;; Autocomplete
 (use-package 
-  company
+  company 
   :init (add-hook 'after-init-hook 'global-company-mode))
 
+(setq company-idle-delay .3)
+(setq company-echo-delay 0)
+
 (use-package 
-  go-mode
+  company-tabnine 
+  :ensure t
+  :init
+  (add-hook 'python-mode-hook (add-to-list 'company-backends #'company-tabnine))
+)
+
+(use-package 
+  go-mode 
   :init (add-hook 'before-save-hook #'gofmt-before-save) 
   (add-hook 'go-mode-hook (lambda () 
                             (set (make-local-variable 'company-backends) 
                                  '(company-go)))))
 
 (use-package 
-  company-go
+  company-go 
   :init (setq company-tooltip-limit 20) 
-  (setq company-idle-delay .3) 
-  (setq company-echo-delay 0))
+)
 
 (use-package 
-  flycheck-gometalinter
+  flycheck-gometalinter 
   :ensure t 
   :config (progn (flycheck-gometalinter-setup)))
 
 (use-package 
-  cargo
+  cargo 
   :bind (:map cargo-minor-mode-map
               ("s-y" . cargo-process-clippy) 
               ("s-m" . cargo-process-build) 
@@ -101,36 +110,33 @@
 
 (use-package 
   flymake-diagnostic-at-point
-  
   :after flymake 
   :config (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode) 
   (setq flymake-diagnostic-at-point-timer-delay 0.9))
 
 (use-package 
-  rust-mode
+  rust-mode 
   :init (add-hook 'rust-mode-hook 'eglot-ensure))
 
 (use-package 
-  eglot
+  eglot 
   :bind (:map eglot-mode-map
               ("s-d" . eglot-help-at-point) 
               ("s-e" . xref-find-definitions) 
               ("s-/" . eglot-rename) 
-              ("<s-return>" . eglot-code-actions))
-  :init (add-hook 'c++-mode-hook 'eglot-ensure)
+              ("<s-return>" . eglot-code-actions)) 
+  :init (add-hook 'c++-mode-hook 'eglot-ensure) 
   :config (setq eglot-put-doc-in-help-buffer t))
 
-;;(use-package 
+;;(use-package
 ;;  jedi
-;;  :init (add-hook 'python-mode-hook 'jedi:setup) 
+;;  :init (add-hook 'python-mode-hook 'jedi:setup)
 ;;  (setq jedi:complete-on-dot t))
 (add-hook 'python-mode-hook 'eglot-ensure)
-(with-eval-after-load 'python
-  (define-key python-mode-map (kbd "s-r") 'python-shell-send-region)
-  (define-key python-mode-map (kbd "<C-return>") 'python-shell-send-buffer)
-)
+(with-eval-after-load 'python (define-key python-mode-map (kbd "s-r") 'python-shell-send-region) 
+                      (define-key python-mode-map (kbd "<C-return>") 'python-shell-send-buffer))
 
-(use-package
+(use-package 
   cython-mode)
 
 (defun recompile-quietly () 
@@ -139,7 +145,7 @@
   (save-window-excursion (recompile)))
 
 (use-package 
-  glsl-mode
+  glsl-mode 
   :init (autoload 'glsl-mode "glsl-mode" nil t) 
   (add-to-list 'auto-mode-alist '("\\.glsl\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.vert\\'" . glsl-mode)) 
@@ -164,13 +170,13 @@
                          :modes glsl-mode)
 (add-to-list 'flycheck-checkers 'glsl-lang-validator)
 
-(use-package
+(use-package 
   opencl-mode)
 
-(use-package
+(use-package 
   cuda-mode)
 
-(use-package
+(use-package 
   flymake-json)
 
 (defun my/use-eslint-from-node-modules () 
@@ -183,44 +189,40 @@
       (setq-local flycheck-javascript-eslint-executable eslint))))
 
 (use-package 
-  js2-mode
+  js2-mode 
   :interpreter ("node" . js-mode) 
   :init (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)) 
   (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(javascript-jshint))) 
   (flycheck-add-mode 'javascript-eslint 'js2-mode) 
   (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules))
 
-(use-package
+(use-package 
   skewer-mode 
   :init (add-hook 'js2-mode-hook 'skewer-mode))
 
 (use-package 
-  ac-js2
+  ac-js2 
   :init (add-hook 'js2-mode-hook 'ac-js2-mode) 
   (setq ac-js2-evaluate-calls t))
 
 (use-package 
-  web-beautify
+  web-beautify 
   :init (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js))
 
 (use-package 
-  magit
+  magit 
   :init (add-hook 'after-save-hook 'magit-after-save-refresh-status))
 
-(use-package  
+(use-package 
   epg)
 
 ;; (load "~/.emacs.d/lisp/PG/generic/proof-site")
 
 (use-package 
   proof-general
-  
   :init (setq proof-splash-seen t)
-
   (setq proof-three-window-mode-policy 'hybrid)
-
   (setq proof-script-fly-past-comments t)
-
   (with-eval-after-load 'coq (define-key coq-mode-map (kbd "s-<return>") #'proof-goto-point) 
                         (define-key coq-mode-map (kbd "M-n") nil) 
                         (define-key coq-mode-map (kbd "M-p") nil) 
@@ -229,7 +231,7 @@
 
 ;; Keybindings
 (use-package 
-  elmacro
+  elmacro 
   :init (elmacro-mode))
 (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") `repeat)
@@ -237,7 +239,7 @@
 (global-unset-key (kbd "M-s"))
 (global-set-key (kbd "M-s") `save-buffer)
 
-;;(use-package 
+;;(use-package
 ;;  redo+)
 
 (global-unset-key (kbd "C-x u"))
@@ -316,15 +318,17 @@
                        (line-beginning-position 2)))))
 
 ;; Formatting
-(use-package clang-format)
+(use-package 
+  clang-format)
 
-(use-package elisp-format)
+(use-package 
+  elisp-format)
 
 (defun reformat-code () 
   (interactive)
   ;; Add whatever languages you want here
   (when (derived-mode-p 'c++-mode 'c-mode 'cuda-mode 'glsl-mode) 
-    (clang-format-buffer))
+    (clang-format-buffer)) 
   (when (derived-mode-p 'emacs-lisp-mode) 
     (elisp-format-buffer)) 
   (when (derived-mode-p 'python-mode) 
@@ -340,7 +344,7 @@
 (setq-default indent-tabs-mode nil)
 
 (use-package 
-  whitespace-cleanup-mode
+  whitespace-cleanup-mode 
   :init (add-hook 'python-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'cython-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'c-mode-hook 'whitespace-cleanup-mode) 
@@ -349,7 +353,7 @@
   (add-hook 'java-mode-hook 'whitespace-cleanup-mode))
 
 (use-package 
-  smartparens
+  smartparens 
   :init (require 'smartparens-config) 
   (show-smartparens-global-mode +1) 
   (smartparens-global-mode 1) 
@@ -359,12 +363,12 @@
     (sp-local-pair "/*" "*/" 
                    :post-handlers '((" | " "SPC") 
                                     ("* ||\n[i]" "RET")))))
-(use-package
+(use-package 
   visual-fill-column)
 
 (setq column-number-mode t)
 (use-package 
-  column-marker
+  column-marker 
   :init (add-hook 'foo-mode-hook (lambda () 
                                    (interactive) 
                                    (column-marker-1 80))))
@@ -472,54 +476,48 @@ at the beggining of the new line if inside of a comment."
 
 ;; Fix annoying vertical window splitting.
 ;; https://lists.gnu.org/archive/html/help-gnu-emacs/2015-08/msg00339.html
-(with-eval-after-load "window"
-  (defcustom split-window-below nil
-    "If non-nil, vertical splits produce new windows below."
-    :group 'windows
+(with-eval-after-load "window" 
+  (defcustom split-window-below nil 
+    "If non-nil, vertical splits produce new windows below." 
+    :group 'windows 
     :type 'boolean)
-
-  (defcustom split-window-right nil
-    "If non-nil, horizontal splits produce new windows to the right."
-    :group 'windows
+  (defcustom split-window-right nil 
+    "If non-nil, horizontal splits produce new windows to the right." 
+    :group 'windows 
     :type 'boolean)
-
   (fmakunbound #'split-window-sensibly)
-
-  (defun split-window-sensibly
-      (&optional window)
-    (setq window (or window (selected-window)))
+  (defun split-window-sensibly 
+      (&optional 
+       window) 
+    (setq window (or window 
+                     (selected-window))) 
     (or (and (window-splittable-p window t)
              ;; Split window horizontally.
-             (split-window window nil (if split-window-right 'left  'right)))
+             (split-window window nil (if split-window-right 'left  'right))) 
         (and (window-splittable-p window)
              ;; Split window vertically.
-             (split-window window nil (if split-window-below 'above 'below)))
-        (and (eq window (frame-root-window (window-frame window)))
+             (split-window window nil (if split-window-below 'above 'below))) 
+        (and (eq window (frame-root-window (window-frame window))) 
              (not (window-minibuffer-p window))
              ;; If WINDOW is the only window on its frame and is not the
              ;; minibuffer window, try to split it horizontally disregarding the
              ;; value of `split-width-threshold'.
-             (let ((split-width-threshold 0))
-               (when (window-splittable-p window t)
-                 (split-window window nil (if split-window-right
-                                              'left
-                                            'right))))))))
-(setq-default split-height-threshold  4
-              split-width-threshold   160) ; the reasonable limit for horizontal splits
+             (let ((split-width-threshold 0)) 
+               (when (window-splittable-p window t) 
+                 (split-window window nil (if split-window-right 'left 'right))))))))
+(setq-default split-height-threshold  4 split-width-threshold   160) ; the reasonable limit for horizontal splits
 
-(use-package  
+(use-package 
   pandoc-mode)
 
 (use-package 
   markdown-mode
-  
   :bind (:map markdown-mode-map
               ("M-n" . next-several-lines) 
               ("M-p" . previous-several-lines) 
               ("s-n" . markdown-next-link) 
               ("s-p" . markdown-previous-link)))
 (use-package
-  
   flyspell-popup)
 
 (define-key flyspell-mode-map (kbd "C-;") #'flyspell-popup-correct)
@@ -536,25 +534,22 @@ at the beggining of the new line if inside of a comment."
 (require 'dash)
 (require 's)
 
-;;(-each (-map (lambda (item) 
-;;               (format "~/.emacs.d/elpa/%s" item)) 
-;;             (-filter (lambda (item) 
-;;                        (s-contains? "theme" item)) 
-;;                      (directory-files "~/.emacs.d/elpa/"))) 
-;;  (lambda (item) 
+;;(-each (-map (lambda (item)
+;;               (format "~/.emacs.d/elpa/%s" item))
+;;             (-filter (lambda (item)
+;;                        (s-contains? "theme" item))
+;;                      (directory-files "~/.emacs.d/elpa/")))
+;;  (lambda (item)
 ;;    (add-to-list 'custom-theme-load-path item)))
 
 (use-package 
   monokai-theme
-  
   :init (load-theme 'monokai t))
 (use-package 
   cyberpunk-theme
-  
   :init (load-theme `cyberpunk t))
 (use-package 
   hc-zenburn-theme
-  
   :init (load-theme 'hc-zenburn t))
 (enable-theme `hc-zenburn)
 
@@ -587,7 +582,6 @@ at the beggining of the new line if inside of a comment."
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-follow-mouse 't)
 (use-package
-  
   sublimity)
 (require 'sublimity-attractive)
 (sublimity-mode 1)
