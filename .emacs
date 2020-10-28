@@ -81,7 +81,7 @@
   company-tabnine 
   :ensure t
   :init
-  (add-hook 'python-mode-hook (add-to-list 'company-backends #'company-tabnine))
+  (add-to-list 'company-backends 'company-tabnine)
 )
 
 (use-package 
@@ -281,7 +281,15 @@
 (global-set-key (kbd "s-2") `split-window-vertically)
 (global-set-key (kbd "s-3") `split-window-horizontally)
 (global-set-key (kbd "s-b") `switch-to-buffer)
-(global-set-key [s-tab] 
+;(global-set-key [s-tab] 
+;                (lambda () 
+;                  (interactive) 
+;                  (other-window 1)))
+(global-set-key (kbd "s-o") 
+                (lambda () 
+                  (interactive) 
+                  (other-window 1)))
+(global-set-key (kbd "s-p") 
                 (lambda () 
                   (interactive) 
                   (other-window 1)))
@@ -332,9 +340,9 @@
   (when (derived-mode-p 'emacs-lisp-mode) 
     (elisp-format-buffer)) 
   (when (derived-mode-p 'python-mode) 
-    (eglot-format-buffer)) 
+    (blacken-buffer)) 
   (when (derived-mode-p 'cython-mode) 
-    (eglot-format-buffer)) 
+    (blacken-buffer)) 
   (when (derived-mode-p 'rust-mode) 
     (rust-format-buffer)) 
   (when (derived-mode-p 'go-mode) 
@@ -342,6 +350,10 @@
 (global-set-key (kbd "s-a") `reformat-code)
 (setq-default c-basic-offset 4)
 (setq-default indent-tabs-mode nil)
+
+(use-package blacken
+  :after python
+  :init (add-hook 'python-mode-hook 'blacken-buffer))
 
 (use-package 
   whitespace-cleanup-mode 
