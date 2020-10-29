@@ -378,6 +378,23 @@
                                    (interactive) 
                                    (column-marker-1 80))))
 
+(use-package 
+  counsel 
+  :after ivy 
+  :config (counsel-mode))
+
+(use-package 
+  swiper 
+  :after ivy 
+  :bind (("C-s" . swiper-isearch-backward) 
+         ("C-r" . swiper-isearch-backward)))
+
+(use-package 
+  ivy 
+  :config (setq ivy-use-virtual-buffers t ivy-count-format "%d/%d " enable-recursive-minibuffers t) 
+  (ivy-mode 1)
+  (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial))
+
 ;; Advanced return for programming.
 ;; Shuai Li
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
