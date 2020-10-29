@@ -1,4 +1,4 @@
-                                        ; Custom and other important things
+; Custom and other important things
 
 ;; Save all tempfiles in $TMPDIR/emacs$UID/
 (defconst emacs-tmp-dir (format "%s%s%s/" temporary-file-directory "emacs" (user-uid)))
@@ -93,8 +93,7 @@
 
 (use-package 
   company-go 
-  :init (setq company-tooltip-limit 20) 
-)
+  :init (setq company-tooltip-limit 20))
 
 (use-package 
   flycheck-gometalinter 
@@ -109,7 +108,7 @@
               ("s-t" . cargo-process-test )))
 
 (use-package 
-  flymake-diagnostic-at-point
+  flymake-diagnostic-at-point 
   :after flymake 
   :config (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode) 
   (setq flymake-diagnostic-at-point-timer-delay 0.9))
@@ -219,10 +218,10 @@
 ;; (load "~/.emacs.d/lisp/PG/generic/proof-site")
 
 (use-package 
-  proof-general
-  :init (setq proof-splash-seen t)
-  (setq proof-three-window-mode-policy 'hybrid)
-  (setq proof-script-fly-past-comments t)
+  proof-general 
+  :init (setq proof-splash-seen t) 
+  (setq proof-three-window-mode-policy 'hybrid) 
+  (setq proof-script-fly-past-comments t) 
   (with-eval-after-load 'coq (define-key coq-mode-map (kbd "s-<return>") #'proof-goto-point) 
                         (define-key coq-mode-map (kbd "M-n") nil) 
                         (define-key coq-mode-map (kbd "M-p") nil) 
@@ -281,10 +280,10 @@
 (global-set-key (kbd "s-2") `split-window-vertically)
 (global-set-key (kbd "s-3") `split-window-horizontally)
 (global-set-key (kbd "s-b") `switch-to-buffer)
-;(global-set-key [s-tab] 
-;                (lambda () 
-;                  (interactive) 
-;                  (other-window 1)))
+                                        ;(global-set-key [s-tab]
+                                        ;                (lambda ()
+                                        ;                  (interactive)
+                                        ;                  (other-window 1)))
 (global-set-key (kbd "s-o") 
                 (lambda () 
                   (interactive) 
@@ -351,8 +350,9 @@
 (setq-default c-basic-offset 4)
 (setq-default indent-tabs-mode nil)
 
-(use-package blacken
-  :after python
+(use-package 
+  blacken 
+  :after python 
   :init (add-hook 'python-mode-hook 'blacken-buffer))
 
 (use-package 
@@ -492,12 +492,12 @@ at the beggining of the new line if inside of a comment."
   (defcustom split-window-below nil 
     "If non-nil, vertical splits produce new windows below." 
     :group 'windows 
-    :type 'boolean)
+    :type 'boolean) 
   (defcustom split-window-right nil 
     "If non-nil, horizontal splits produce new windows to the right." 
     :group 'windows 
-    :type 'boolean)
-  (fmakunbound #'split-window-sensibly)
+    :type 'boolean) 
+  (fmakunbound #'split-window-sensibly) 
   (defun split-window-sensibly 
       (&optional 
        window) 
@@ -523,13 +523,13 @@ at the beggining of the new line if inside of a comment."
   pandoc-mode)
 
 (use-package 
-  markdown-mode
+  markdown-mode 
   :bind (:map markdown-mode-map
               ("M-n" . next-several-lines) 
               ("M-p" . previous-several-lines) 
               ("s-n" . markdown-next-link) 
               ("s-p" . markdown-previous-link)))
-(use-package
+(use-package 
   flyspell-popup)
 
 (define-key flyspell-mode-map (kbd "C-;") #'flyspell-popup-correct)
@@ -555,13 +555,13 @@ at the beggining of the new line if inside of a comment."
 ;;    (add-to-list 'custom-theme-load-path item)))
 
 (use-package 
-  monokai-theme
+  monokai-theme 
   :init (load-theme 'monokai t))
 (use-package 
-  cyberpunk-theme
+  cyberpunk-theme 
   :init (load-theme `cyberpunk t))
 (use-package 
-  hc-zenburn-theme
+  hc-zenburn-theme 
   :init (load-theme 'hc-zenburn t))
 (enable-theme `hc-zenburn)
 
@@ -593,7 +593,7 @@ at the beggining of the new line if inside of a comment."
 (setq mouse-wheel-scroll-amount '(3 ((shift) . 3)))
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-follow-mouse 't)
-(use-package
+(use-package 
   sublimity)
 (require 'sublimity-attractive)
 (sublimity-mode 1)
