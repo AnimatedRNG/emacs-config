@@ -1,4 +1,4 @@
-; Custom and other important things
+                                        ; Custom and other important things
 
 ;; Save all tempfiles in $TMPDIR/emacs$UID/
 (defconst emacs-tmp-dir (format "%s%s%s/" temporary-file-directory "emacs" (user-uid)))
@@ -17,8 +17,6 @@
                               default))) 
  '(inhibit-startup-buffer-menu t) 
  '(inhibit-startup-screen t) 
- '(js2-basic-offset 4) 
- '(js2-bounce-indent-p t) 
  '(magit-commit-arguments nil) 
  '(package-selected-packages (quote (iodine-theme irony twilight-bright-theme web-beautify sublimity
                                                   redo+ jekyll-modes jedi hc-zenburn-theme
@@ -27,15 +25,7 @@
 
 ;; Package configuration
 
-;;(require 'package)
-;;(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-;;                         ("marmalade" . "https://marmalade-repo.org/packages/")
-;;                         ("melpa" . "https://melpa.org/packages/")))
-;;(package-initialize)
 (setq shell-file-name "/bin/bash")
-;;(unless (package-installed-p 'use-package)
-;;  (package-refresh-contents)
-;;  (package-install 'use-package))
 
 (defvar bootstrap-version)
 (let ((bootstrap-file (expand-file-name "straight/repos/straight.el/bootstrap.el"
@@ -57,13 +47,39 @@
 (setq straight-use-package-by-default t)
 
 (use-package 
-  flycheck 
+    exec-path-from-shell 
+  :init (when (daemonp) 
+          (exec-path-from-shell-initialize)) 
+  (exec-path-from-shell-copy-env "PYTHONPATH"))
+
+(use-package 
+    flycheck 
   :init (add-hook 'prog-mode-hook #'flycheck-mode) 
   :config (setq flycheck-check-syntax-automatically '(save new-line) flycheck-idle-change-delay 5.0
                 flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t) 
   (setq flycheck-disabled-checkers '(rust rust-cargo rust-clippy)))
 
-(global-set-key (kbd "s-x") nil)
+(use-package 
+    rjsx-mode 
+  :mode ("\\.js\\'" "\\.jsx\\'") 
+  :init (add-hook 'rust-mode-hook 'eglot-ensure) 
+  :config (setq js2-mode-show-parse-errors nil js2-mode-show-strict-warnings nil js2-basic-offset 2
+                js-indent-level 2) 
+  (setq-local flycheck-disabled-checkers (cl-union flycheck-disabled-checkers '(javascript-jshint)))
+                                        ; jshint doesn't work for JSX
+  )
+(use-package 
+    add-node-modules-path 
+  :defer t 
+  :hook (((js2-mode rjsx-mode) . add-node-modules-path)))
+
+(use-package 
+    prettier-js 
+  :defer t 
+  :diminish prettier-js-mode 
+  :hook (((js2-mode rjsx-mode) . prettier-js-mode))
+  nil)
+
 (setq mac-command-modifier 'meta)       ; make cmd key do Meta
 (setq mac-option-modifier 'super)       ; make opt key do Super
 (setq mac-control-modifier 'control)    ; make Control key do Control
@@ -71,47 +87,47 @@
 
 ;; Autocomplete
 (use-package 
-  company 
+    company 
   :init (add-hook 'after-init-hook 'global-company-mode))
 
 (setq company-idle-delay .3)
 (setq company-echo-delay 0)
 
 (use-package 
-  go-mode 
+    go-mode 
   :init (add-hook 'before-save-hook #'gofmt-before-save) 
   (add-hook 'go-mode-hook (lambda () 
                             (set (make-local-variable 'company-backends) 
                                  '(company-go)))))
 
 (use-package 
-  company-go 
+    company-go 
   :init (setq company-tooltip-limit 20))
 
 (use-package 
-  flycheck-gometalinter 
+    flycheck-gometalinter 
   :ensure t 
   :config (progn (flycheck-gometalinter-setup)))
 
 (use-package 
-  cargo 
+    cargo 
   :bind (:map cargo-minor-mode-map
               ("s-y" . cargo-process-clippy) 
               ("s-m" . cargo-process-build) 
               ("s-t" . cargo-process-test )))
 
 (use-package 
-  flymake-diagnostic-at-point 
+    flymake-diagnostic-at-point 
   :after flymake 
   :config (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode) 
   (setq flymake-diagnostic-at-point-timer-delay 0.9))
 
 (use-package 
-  rust-mode 
+    rust-mode 
   :init (add-hook 'rust-mode-hook 'eglot-ensure))
 
 (use-package 
-  eglot 
+    eglot 
   :bind (:map eglot-mode-map
               ("s-d" . eglot-help-at-point) 
               ("s-e" . xref-find-definitions) 
@@ -129,7 +145,7 @@
                       (define-key python-mode-map (kbd "<C-return>") 'python-shell-send-buffer))
 
 (use-package 
-  cython-mode)
+    cython-mode)
 
 (defun recompile-quietly () 
   "Re-compile without changing the window configuration." 
@@ -137,7 +153,7 @@
   (save-window-excursion (recompile)))
 
 (use-package 
-  glsl-mode 
+    glsl-mode 
   :init (autoload 'glsl-mode "glsl-mode" nil t) 
   (add-to-list 'auto-mode-alist '("\\.glsl\\'" . glsl-mode)) 
   (add-to-list 'auto-mode-alist '("\\.vert\\'" . glsl-mode)) 
@@ -163,55 +179,25 @@
 (add-to-list 'flycheck-checkers 'glsl-lang-validator)
 
 (use-package 
-  opencl-mode)
+    opencl-mode)
 
 (use-package 
-  cuda-mode)
+    cuda-mode)
 
 (use-package 
-  flymake-json)
-
-(defun my/use-eslint-from-node-modules () 
-  (let* ((root (locate-dominating-file (or (buffer-file-name) 
-                                           default-directory) "node_modules")) 
-         (eslint (and root 
-                      (expand-file-name "node_modules/eslint/bin/eslint.js" root)))) 
-    (when (and eslint 
-               (file-executable-p eslint)) 
-      (setq-local flycheck-javascript-eslint-executable eslint))))
+    flymake-json)
 
 (use-package 
-  js2-mode 
-  :interpreter ("node" . js-mode) 
-  :init (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)) 
-  (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(javascript-jshint))) 
-  (flycheck-add-mode 'javascript-eslint 'js2-mode) 
-  (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules))
-
-(use-package 
-  skewer-mode 
-  :init (add-hook 'js2-mode-hook 'skewer-mode))
-
-(use-package 
-  ac-js2 
-  :init (add-hook 'js2-mode-hook 'ac-js2-mode) 
-  (setq ac-js2-evaluate-calls t))
-
-(use-package 
-  web-beautify 
-  :init (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js))
-
-(use-package 
-  magit 
+    magit 
   :init (add-hook 'after-save-hook 'magit-after-save-refresh-status))
 
 (use-package 
-  epg)
+    epg)
 
 ;; (load "~/.emacs.d/lisp/PG/generic/proof-site")
 
 (use-package 
-  proof-general 
+    proof-general 
   :init (setq proof-splash-seen t) 
   (setq proof-three-window-mode-policy 'hybrid) 
   (setq proof-script-fly-past-comments t) 
@@ -223,7 +209,7 @@
 
 ;; Keybindings
 (use-package 
-  elmacro 
+    elmacro 
   :init (elmacro-mode))
 (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") `repeat)
@@ -319,10 +305,10 @@
 
 ;; Formatting
 (use-package 
-  clang-format)
+    clang-format)
 
 (use-package 
-  elisp-format)
+    elisp-format)
 
 (defun reformat-code () 
   (interactive)
@@ -344,12 +330,12 @@
 (setq-default indent-tabs-mode nil)
 
 (use-package 
-  blacken 
+    blacken 
   :after python 
   :init (add-hook 'python-mode-hook 'blacken-buffer))
 
 (use-package 
-  whitespace-cleanup-mode 
+    whitespace-cleanup-mode 
   :init (add-hook 'python-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'cython-mode-hook 'whitespace-cleanup-mode) 
   (add-hook 'c-mode-hook 'whitespace-cleanup-mode) 
@@ -358,7 +344,7 @@
   (add-hook 'java-mode-hook 'whitespace-cleanup-mode))
 
 (use-package 
-  smartparens 
+    smartparens 
   :init (require 'smartparens-config) 
   (show-smartparens-global-mode +1) 
   (smartparens-global-mode 1) 
@@ -369,30 +355,30 @@
                    :post-handlers '((" | " "SPC") 
                                     ("* ||\n[i]" "RET")))))
 (use-package 
-  visual-fill-column)
+    visual-fill-column)
 
 (setq column-number-mode t)
 (use-package 
-  column-marker 
+    column-marker 
   :init (add-hook 'foo-mode-hook (lambda () 
                                    (interactive) 
                                    (column-marker-1 80))))
 
 (use-package 
-  counsel 
+    counsel 
   :after ivy 
   :config (counsel-mode))
 
 (use-package 
-  swiper 
+    swiper 
   :after ivy 
   :bind (("C-s" . swiper-isearch-backward) 
          ("C-r" . swiper-isearch-backward)))
 
 (use-package 
-  ivy 
+    ivy 
   :config (setq ivy-use-virtual-buffers t ivy-count-format "%d/%d " enable-recursive-minibuffers t) 
-  (ivy-mode 1)
+  (ivy-mode 1) 
   (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial))
 
 ;; Advanced return for programming.
@@ -530,17 +516,17 @@ at the beggining of the new line if inside of a comment."
 (setq-default split-height-threshold  4 split-width-threshold   160) ; the reasonable limit for horizontal splits
 
 (use-package 
-  pandoc-mode)
+    pandoc-mode)
 
 (use-package 
-  markdown-mode 
+    markdown-mode 
   :bind (:map markdown-mode-map
               ("M-n" . next-several-lines) 
               ("M-p" . previous-several-lines) 
               ("s-n" . markdown-next-link) 
               ("s-p" . markdown-previous-link)))
 (use-package 
-  flyspell-popup)
+    flyspell-popup)
 
 (define-key flyspell-mode-map (kbd "C-;") #'flyspell-popup-correct)
 
@@ -565,13 +551,13 @@ at the beggining of the new line if inside of a comment."
 ;;    (add-to-list 'custom-theme-load-path item)))
 
 (use-package 
-  monokai-theme 
+    monokai-theme 
   :init (load-theme 'monokai t))
 (use-package 
-  cyberpunk-theme 
+    cyberpunk-theme 
   :init (load-theme `cyberpunk t))
 (use-package 
-  hc-zenburn-theme 
+    hc-zenburn-theme 
   :init (load-theme 'hc-zenburn t))
 (enable-theme `hc-zenburn)
 
@@ -604,7 +590,7 @@ at the beggining of the new line if inside of a comment."
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-follow-mouse 't)
 (use-package 
-  sublimity)
+    sublimity)
 (require 'sublimity-attractive)
 (sublimity-mode 1)
 (toggle-scroll-bar -1)
