@@ -1,11 +1,64 @@
-                                        ; Custom and other important things
+(setq package-enable-at-startup nil)
 
-;; Save all tempfiles in $TMPDIR/emacs$UID/
+(defvar elpaca-installer-version 0.11)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+:ref nil
+:depth 1
+:inherit ignore
+:files (:defaults "elpaca-test.el" (:exclude "extensions"))
+:build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+(build (expand-file-name "elpaca/" elpaca-builds-directory))
+(order (cdr elpaca-order))
+(default-directory repo))
+(add-to-list 'load-path (if (file-exists-p build) build repo))
+(unless (file-exists-p repo)
+(make-directory repo t)
+(when (<= emacs-major-version 28)
+(require 'subr-x))
+(condition-case-unless-debug err (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+((zerop (apply #'call-process `("git" nil ,buffer t "clone" ,@(when-let* ((depth (plist-get order
+:depth)))
+(list (format "--depth=%d" depth) "--no-single-branch"))
+,(plist-get order
+:repo) ,repo))))
+((zerop (call-process "git" nil buffer t "checkout" (or (plist-get order
+:ref) "--"))))
+(emacs (concat invocation-directory invocation-name))
+((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch" "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+((require 'elpaca))
+((elpaca-generate-autoloads "elpaca" repo)))
+(progn (message "%s" (buffer-string))
+(kill-buffer buffer))
+(error "%s" (with-current-buffer buffer (buffer-string))))
+((error)
+(warn "%s" err)
+(delete-directory repo 'recursive))))
+(unless (require 'elpaca-autoloads nil t)
+(require 'elpaca)
+(elpaca-generate-autoloads "elpaca" repo)
+(let ((load-source-file-function nil))
+(load "./elpaca-autoloads"))))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
+
+(elpaca elpaca-use-package (elpaca-use-package-mode))
+(setq use-package-always-ensure t)
+
+;; Auto-save config
 (defconst emacs-tmp-dir (format "%s%s%s/" temporary-file-directory "emacs" (user-uid)))
 (setq backup-directory-alist `((".*" . ,emacs-tmp-dir)))
 (setq auto-save-file-name-transforms `((".*" ,emacs-tmp-dir t)))
 (setq auto-save-list-file-prefix emacs-tmp-dir)
 (defalias 'yes-or-no-p 'y-or-n-p)
+
+(use-package treesit-auto
+:config (setq treesit-auto-install 'prompt) ; Ask before installing new grammars
+  (global-treesit-auto-mode))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -15,60 +68,12 @@
 '(inhibit-startup-buffer-menu t)
 '(inhibit-startup-screen t)
 '(magit-commit-arguments nil)
-'(package-selected-packages (quote (iodine-theme irony twilight-bright-theme web-beautify sublimity redo+ jekyll-modes jedi hc-zenburn-theme flymake-json elisp-format column-marker)))
-'(tool-bar-mode nil))
+;; '(package-selected-packages (quote (iodine-theme irony twilight-bright-theme web-beautify sublimity redo+ jekyll-modes jedi hc-zenburn-theme flymake-json elisp-format)))
+'(tool-bar-mode nil)
+'(menu-bar-mode nil)
+'(scroll-bar-mode nil))
 
-;; Package configuration
-
-(setq shell-file-name "/bin/bash")
-
-(defvar bootstrap-version)
-(let ((bootstrap-file (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-(bootstrap-version 5))
-(unless (file-exists-p bootstrap-file)
-(with-current-buffer (url-retrieve-synchronously "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el" 'silent 'inhibit-cookies)
-(goto-char (point-max))
-(eval-print-last-sexp)))
-(load bootstrap-file nil 'nomessage))
-
-(straight-use-package 'use-package)
-
-(use-package straight
-  :custom
-  ;; add project and flymake to the pseudo-packages variable so straight.el doesn't download a separate version than what eglot downloads.
-  (straight-built-in-pseudo-packages '(emacs xref nadvice python image-mode project flymake))
-  (straight-use-package-by-default t))
-
-(setq use-package-always-ensure t)
-(eval-when-compile (require 'use-package))
-(setq straight-use-package-by-default t)
-
-(use-package exec-path-from-shell
-:init (when (daemonp)
-(exec-path-from-shell-initialize))
-(exec-path-from-shell-copy-env "PYTHONPATH"))
-
-(use-package flycheck
-:init (add-hook 'prog-mode-hook #'flycheck-mode)
-:config (setq flycheck-check-syntax-automatically '(save new-line) flycheck-idle-change-delay 5.0 flycheck-display-errors-delay 0.9 flycheck-standard-error-navigation t)
-(setq flycheck-disabled-checkers '(rust rust-cargo rust-clippy)))
-
-(use-package rjsx-mode
-:mode ("\\.js\\'" "\\.jsx\\'")
-:init (add-hook 'rust-mode-hook 'eglot-ensure)
-:config (setq js2-mode-show-parse-errors nil js2-mode-show-strict-warnings nil js2-basic-offset 2 js-indent-level 2)
-(setq-local flycheck-disabled-checkers (cl-union flycheck-disabled-checkers '(javascript-jshint)))
-                                        ; jshint doesn't work for JSX
-  )
-(use-package add-node-modules-path
-:defer t
-:hook (((js2-mode rjsx-mode) . add-node-modules-path)))
-
-(use-package prettier-js
-:defer t
-:diminish prettier-js-mode
-:hook (((js2-mode rjsx-mode) . prettier-js-mode)) nil)
-
+;; OS-X settings
 (setq mac-command-modifier 'meta)       ; make cmd key do Meta
 (setq mac-option-modifier 'super)       ; make opt key do Super
 (setq mac-control-modifier 'control)    ; make Control key do Control
@@ -76,11 +81,14 @@
 
 ;; Autocomplete
 (use-package company
+:ensure (:wait t)
 :init (add-hook 'after-init-hook 'global-company-mode))
-
 (setq company-idle-delay .3)
 (setq company-echo-delay 0)
 
+;; ;; Language-specific features
+
+;; Go
 (use-package go-mode
 :init (add-hook 'before-save-hook #'gofmt-before-save)
 (add-hook 'go-mode-hook (lambda ()
@@ -90,48 +98,22 @@
 (use-package company-go
 :init (setq company-tooltip-limit 20))
 
-(use-package flycheck-gometalinter
-:ensure t
-:config (progn (flycheck-gometalinter-setup)))
-
+;; Rust
 (use-package cargo
 :bind (:map cargo-minor-mode-map ("s-y" . cargo-process-clippy)
 ("s-m" . cargo-process-build)
 ("s-t" . cargo-process-test )))
 
-(use-package flymake-diagnostic-at-point
-:after flymake
-:config (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode)
-(setq flymake-diagnostic-at-point-timer-delay 0.9))
+(use-package rust-mode)
 
-(use-package rust-mode
-:init (add-hook 'rust-mode-hook 'eglot-ensure))
-
-
-(use-package eglot
-:defer t
-:bind (:map eglot-mode-map ("s-d" . eglot-help-at-point)
-("s-e" . xref-find-definitions)
-("s-/" . eglot-rename)
-("<s-return>" . eglot-code-actions))
-:init (add-hook 'c++-mode-hook 'eglot-ensure)
-:config (setq eglot-put-doc-in-help-buffer t))
-
-(require 'project)
-
-;;(use-package
-;;  jedi
-;;  :init (add-hook 'python-mode-hook 'jedi:setup)
-;;  (setq jedi:complete-on-dot t))
-(add-hook 'python-mode-hook 'eglot-ensure)
+;; Python
 (with-eval-after-load 'python (define-key python-mode-map (kbd "s-r") 'python-shell-send-region)
 (define-key python-mode-map (kbd "<C-return>") 'python-shell-send-buffer))
 
-(use-package cython-mode)
+;; CUDA
+(use-package cuda-mode)
 
-(defun recompile-quietly () "Re-compile without changing the window configuration." (interactive)
-(save-window-excursion (recompile)))
-
+;; GLSL
 (use-package glsl-mode
 :init (autoload 'glsl-mode "glsl-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.glsl\\'" . glsl-mode))
@@ -142,41 +124,28 @@
 (irony-mode -1)))
 (add-hook 'glsl-mode-hook 'auto-complete-mode))
 
-(flycheck-define-checker glsl-lang-validator "A GLSL checker using glslangValidator.
-  See URL https://www.khronos.org/opengles/sdk/tools/Reference-Compiler/"
-:command ("glslangValidator" source)
-:error-patterns ((error line-start "ERROR: " column ":" line ": " (message) line-end))
-:modes glsl-mode)
-(add-to-list 'flycheck-checkers 'glsl-lang-validator)
-
-(use-package opencl-mode)
-
-(use-package cuda-mode)
-
+;; Flymake
 (use-package flymake-json)
 
-(use-package magit
-:init (add-hook 'after-save-hook 'magit-after-save-refresh-status))
+(use-package eldoc :defer t)
+(use-package flymake :defer t)
 
-(use-package epg)
+;; Eglot config
+(use-package eglot
+:hook (prog-mode . eglot-ensure) ;; This handles all programming modes
+  :bind (:map eglot-mode-map ("s-d" . eglot-help-at-point)
+("s-e" . xref-find-definitions)
+("s-/" . eglot-rename)
+("<s-return>" . eglot-code-actions)))
 
-;; (load "~/.emacs.d/lisp/PG/generic/proof-site")
-
-(use-package proof-general
-:init (setq proof-splash-seen t)
-(setq proof-three-window-mode-policy 'hybrid)
-(setq proof-script-fly-past-comments t)
-(with-eval-after-load 'coq (define-key coq-mode-map (kbd "s-<return>") #'proof-goto-point)
-(define-key coq-mode-map (kbd "M-n") nil)
-(define-key coq-mode-map (kbd "M-p") nil)
-(define-key coq-mode-map (kbd "s-n") #'proof-assert-next-command-interactive)))
+(require 'project)
 
 ;; LLM stuff
 (use-package minuet
 :bind (("M-y" . #'minuet-complete-with-minibuffer) ;; use minibuffer for completion
      ("M-i" . #'minuet-show-suggestion) ;; use overlay for completion
      ("C-c m" . #'minuet-configure-provider)
-     :map minuet-active-mode-map
+:map minuet-active-mode-map
      ;; These keymaps activate only when a minuet suggestion is displayed in the current buffer
      ("C-M-p" . #'minuet-previous-suggestion) ;; invoke completion or cycle to next completion
      ("C-M-n" . #'minuet-next-suggestion) ;; invoke completion or cycle to previous completion
@@ -204,22 +173,27 @@
 (minuet-set-optional-options minuet-openai-fim-compatible-options
 :max_tokens 64))
 
+(use-package aidermacs
+  :ensure (:wait t)
+:bind (("C-c a" . aidermacs-transient-menu))
+:config
+  (setq aidermacs-show-diff-after-change t)
+:custom
+  ; See the Configuration section below
+  (aidermacs-default-chat-mode 'architect)
+(aidermacs-default-model "sonnet"))
+
 ;; Keybindings
-(use-package elmacro
-:init (elmacro-mode))
 (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") `repeat)
 
 (global-unset-key (kbd "M-s"))
 (global-set-key (kbd "M-s") `save-buffer)
 
-;;(use-package
-;;  redo+)
 
 (global-unset-key (kbd "C-x u"))
 (global-set-key (kbd "C-u") `undo)
 (global-set-key (kbd "s-u") `undo)
-;; (global-set-key (kbd "s-r") `redo)
 
 (defun top-join-line ()
 (interactive)
@@ -255,10 +229,7 @@
 (global-set-key (kbd "s-2") `split-window-vertically)
 (global-set-key (kbd "s-3") `split-window-horizontally)
 (global-set-key (kbd "s-b") `switch-to-buffer)
-                                        ;(global-set-key [s-tab]
-                                        ;                (lambda ()
-                                        ;                  (interactive)
-                                        ;                  (other-window 1)))
+
 (global-set-key (kbd "s-o")
 (lambda ()
 (interactive)
@@ -296,20 +267,13 @@
 (line-beginning-position 2)))))
 
 ;; Formatting
-(use-package clang-format)
-
-(use-package elisp-format)
-
 (defun reformat-code ()
 (interactive)
-  ;; Add whatever languages you want here
-  (when (derived-mode-p 'c++-mode 'c-mode 'cuda-mode 'glsl-mode)
+(when (derived-mode-p 'c++-mode 'c-mode 'cuda-mode 'glsl-mode)
 (clang-format-buffer))
 (when (derived-mode-p 'emacs-lisp-mode)
 (elisp-format-buffer))
 (when (derived-mode-p 'python-mode)
-(blacken-buffer))
-(when (derived-mode-p 'cython-mode)
 (blacken-buffer))
 (when (derived-mode-p 'rust-mode)
 (rust-format-buffer))
@@ -328,27 +292,34 @@
 (add-hook 'cython-mode-hook 'whitespace-cleanup-mode)
 (add-hook 'c-mode-hook 'whitespace-cleanup-mode)
 (add-hook 'c++-mode-hook 'whitespace-cleanup-mode)
-(add-hook 'rust-mode-hook 'whitespace-cleanup-mode)
 (add-hook 'java-mode-hook 'whitespace-cleanup-mode))
 
+;; (use-package smartparens
+;; :init (require 'smartparens-config)
+;; (show-smartparens-global-mode +1)
+;; (smartparens-global-mode 1)
+;; (sp-with-modes '(c-mode c++-mode)
+;; (sp-local-pair "{" nil
+;; :post-handlers '(("||\n[i]" "RET")))
+;; (sp-local-pair "/*" "*/"
+;; :post-handlers '((" | " "SPC")
+;; ("* ||\n[i]" "RET")))))
+;; (use-package visual-fill-column)
 (use-package smartparens
-:init (require 'smartparens-config)
-(show-smartparens-global-mode +1)
-(smartparens-global-mode 1)
-(sp-with-modes '(c-mode c++-mode)
-(sp-local-pair "{" nil
-:post-handlers '(("||\n[i]" "RET")))
-(sp-local-pair "/*" "*/"
-:post-handlers '((" | " "SPC")
-("* ||\n[i]" "RET")))))
-(use-package visual-fill-column)
+  :hook (prog-mode . smartparens-mode)
+  :config
+  ;; Enable show-smartparens-mode to visualize pairs.
+  (show-smartparens-global-mode 1)
+
+  ;; Define custom pairs for C-like modes.
+  (sp-with-modes '(c-mode c++-mode)
+    (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
+    (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
+                                               ("* ||\n[i]" "RET")))))
 
 (setq column-number-mode t)
-(use-package column-marker
-:init (add-hook 'foo-mode-hook (lambda ()
-(interactive)
-(column-marker-1 80))))
 
+;; Ivy/Swiper/Counsel
 (use-package counsel
 :after ivy
 :config (counsel-mode))
@@ -363,88 +334,8 @@
 (ivy-mode 1)
 (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial))
 
-;; Advanced return for programming.
-;; Shuai Li
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun advanced-return () "Advanced `newline' command for comment.  This function redefine <Enter> to
-provide a corrent comment symbol at each newline plus a space when you press
-<Enter> in the comment.  It also support JavaDoc style comment -- insert a `*'
-at the beggining of the new line if inside of a comment." (interactive "*")
-(let* ((last (point))
-(line-beginning (progn (beginning-of-line)
-(point)))
-(is-inside-java-doc (progn (goto-char last)
-(if (search-backward "*/" nil t)
-                                        ;; there are some comment endings - search forward
-                                        (search-forward "/*" last t)
-                                      ;; it's the only comment - search backward
-                                      (goto-char last)
-(search-backward "/*" nil t))))
-(is-inside-oneline-comment (progn (goto-char last)
-(search-backward comment-start line-beginning t))))
+;; Aesthetics
 
-    ;; go to last char position
-    (goto-char last)
-
-    ;; the point is inside one line comment, insert the comment-start.
-    (if is-inside-oneline-comment (progn (newline-and-indent)
-(insert comment-start))
-      ;; else we check if it is java-doc style comment.
-      (if is-inside-java-doc (progn (newline-and-indent)
-(insert "* "))
-        ;; else insert only new-line
-        (newline-and-indent)))))
-(add-hook 'prog-mode-hook (lambda ()
-(when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'glsl-mode)
-(local-set-key (kbd "<RET>") 'advanced-return))))
-
-
-;; Themes and other aesthetic tweaks
-
-(defvar serif-preserve-default-list nil "A list holding the faces that preserve the default family and
-  height when TOGGLE-SERIF is used.")
-(setq serif-preserve-default-list '(;; LaTeX markup
-                                    font-latex-math-face font-latex-sedate-face font-latex-warning-face
-                                                         ;; org markup
-                                                         org-latex-and-related org-meta-line org-verbatim org-block-begin-line
-                                                         ;; syntax highlighting using font-lock
-                                                         font-lock-builtin-face font-lock-comment-delimiter-face font-lock-comment-face font-lock-constant-face font-lock-doc-face font-lock-function-name-face font-lock-keyword-face font-lock-negation-char-face font-lock-preprocessor-face font-lock-regexp-grouping-backslash font-lock-regexp-grouping-construct font-lock-string-face font-lock-type-face font-lock-variable-name-face font-lock-warning-face))
-
-(defun toggle-serif () "Change the default face of the current buffer to use a serif family." (interactive)
-(when (display-graphic-p) ;; this is only for graphical emacs
-    ;; the serif font familiy and height, save the default attributes
-    (let ((serif-fam "Crimson")
-(serif-height 150)
-(default-fam (face-attribute 'default
-:family))
-(default-height (face-attribute 'default
-:height)))
-(if (not (bound-and-true-p default-cookie))
-(progn (make-local-variable 'default-cookie)
-(make-local-variable 'preserve-default-cookies-list)
-(setq preserve-default-cookies-list nil)
-                 ;; remap default face to serif
-                 (setq default-cookie (face-remap-add-relative 'default
-:family serif-fam
-:height serif-height))
-                 ;; keep previously defined monospace fonts the same
-                 (dolist (face serif-preserve-default-list)
-(add-to-list 'preserve-default-cookies-list (face-remap-add-relative face
-:family default-fam
-:height default-height)))
-(message "Turned on serif writing font."))
-        ;; undo changes
-        (progn (face-remap-remove-relative default-cookie)
-(dolist (cookie preserve-default-cookies-list)
-(face-remap-remove-relative cookie))
-(setq default-cookie nil)
-(setq preserve-default-cookies-list nil)
-(message "Restored default fonts."))))))
-(set-frame-parameter (selected-frame) 'alpha '(95 . 90))
-(add-to-list 'default-frame-alist '(alpha . (95 . 90)))
-
-;; Fix annoying vertical window splitting.
-;; https://lists.gnu.org/archive/html/help-gnu-emacs/2015-08/msg00339.html
 (with-eval-after-load "window" (defcustom split-window-below nil "If non-nil, vertical splits produce new windows below."
 :group 'windows
 :type 'boolean)
@@ -470,49 +361,16 @@ at the beggining of the new line if inside of a comment." (interactive "*")
 (split-window window nil (if split-window-right 'left 'right))))))))
 (setq-default split-height-threshold  4 split-width-threshold   160) ; the reasonable limit for horizontal splits
 
-(use-package pandoc-mode)
-
-(use-package markdown-mode
-:bind (:map markdown-mode-map ("M-n" . next-several-lines)
-("M-p" . previous-several-lines)
-("s-n" . markdown-next-link)
-("s-p" . markdown-previous-link)))
-(use-package flyspell-popup)
-
-(define-key flyspell-mode-map (kbd "C-;") #'flyspell-popup-correct)
-
-(defun wp_mode ()
-(toggle-serif)
-(visual-line-mode)
-(pandoc-mode)
-(flyspell-mode))
-
-(add-hook 'markdown-mode-hook 'wp_mode)
-(add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)
-
-(require 'dash)
-(require 's)
-
-;;(-each (-map (lambda (item)
-;;               (format "~/.emacs.d/elpa/%s" item))
-;;             (-filter (lambda (item)
-;;                        (s-contains? "theme" item))
-;;                      (directory-files "~/.emacs.d/elpa/")))
-;;  (lambda (item)
-;;    (add-to-list 'custom-theme-load-path item)))
-
-(use-package monokai-theme
-:init (load-theme 'monokai t))
-(use-package cyberpunk-theme
-:init (load-theme `cyberpunk t))
+(use-package monokai-theme)
+(use-package cyberpunk-theme)
 (use-package hc-zenburn-theme
-:init (load-theme 'hc-zenburn t))
-(enable-theme `hc-zenburn)
+  :config
+  (load-theme 'hc-zenburn t))
 
 (set-face-attribute 'default nil
 :height 120)
 
-                                        ; font sizes
+; font sizes
 (global-set-key (kbd "s-=")
 (lambda ()
 (interactive)
@@ -534,20 +392,15 @@ at the beggining of the new line if inside of a comment." (interactive "*")
 (blink-cursor-mode 0)
 (delete-selection-mode 1)
 
+(set-frame-parameter (selected-frame) 'alpha '(95 . 90))
+(add-to-list 'default-frame-alist '(alpha . (95 . 90)))
+
 (setq mouse-wheel-scroll-amount '(3 ((shift) . 3)))
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-follow-mouse 't)
-(use-package sublimity)
-(require 'sublimity-attractive)
-(sublimity-mode 1)
-(toggle-scroll-bar -1)
-(menu-bar-mode -1)
+
+(use-package sublimity
+:config (require 'sublimity-attractive)
+(sublimity-mode 1))
 
 (provide '.emacs)
-;;; .emacs ends here
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
