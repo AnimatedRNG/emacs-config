@@ -174,14 +174,10 @@
 :max_tokens 64))
 
 (use-package aidermacs
-  :ensure (:wait t)
-:bind (("C-c a" . aidermacs-transient-menu))
-:config
-  (setq aidermacs-show-diff-after-change t)
-:custom
-  ; See the Configuration section below
-  (aidermacs-default-chat-mode 'architect)
-(aidermacs-default-model "sonnet"))
+  :bind (("C-c a" . aidermacs-transient-menu))
+  :config
+  (setq aidermacs-show-diff-after-change nil)
+  (setq aidermacs-default-chat-mode 'architect))
 
 ;; Keybindings
 (global-unset-key (kbd "C-z"))
